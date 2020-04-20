@@ -59,13 +59,13 @@ stm SimCommunication {
 transition SConnected_to_SGet {
 		from SConnected
 		to SGet
-		condition $get
+		condition $getNeighs
 	}
 	
 	transition SConnected_to_SConnected {
 		from SConnected
 		to SConnected
-		condition not $get
+		condition not $getNeighs
 		action exec
 	}
 transition SConnected_to_SUpdate {
