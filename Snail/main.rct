@@ -14,7 +14,7 @@ event coordinatesFiware : St * St * St * St
 interface getStatusI {
 	event updateLoc : int * int
 //	event get : St * St * St * St
-	event get : int * int
+	event getNeighs : int * int
 }
 
 enumeration St { 
@@ -35,7 +35,7 @@ interface UpdateI {
 event updateFiware : int * int
 }
 
-interface interface6 {
+interface ErrorI {
 	event communicationError
 }
 
@@ -49,7 +49,7 @@ controller Communication {
 
 sref stm_ref0 = SCommunication
 connection Communication on updateLoc to stm_ref0 on updateLoc
-	connection Communication on get to stm_ref0 on get
+	connection Communication on getNeighs to stm_ref0 on getNeighs
 	connection Communication on connect to stm_ref0 on connect
 	
 connection stm_ref0 on connect_ack to Communication on connect_ack
@@ -101,11 +101,11 @@ initial i0
 var st1 : St , st2 : St , st3 : St , st4 : St
 var line:int=2,column:int=2
 
-	state SGet {
+	state SMove {
 	initial i0
 		state SInit {
 		}
-		state SMove {
+		state SMoving {
 		}
 		transition t0 {
 			from i0
@@ -113,7 +113,7 @@ var line:int=2,column:int=2
 		}
 		transition t1 {
 			from SInit
-			to SMove
+			to SMoving
 		trigger coordinates ? neighs
 		}
 		state s1 {
@@ -121,7 +121,7 @@ var line:int=2,column:int=2
 			 //(location[1]=neighs[1])
 		}
 		transition t2 {
-			from SMove
+			from SMoving
 			to s1
 			trigger
 			condition neighs [ 1 ] == St :: free
@@ -136,15 +136,21 @@ state SConnected {
 	}
 	transition t2 {
 		from SConnected
-		to SGet
+		to SMove
 		trigger
-		action get?location
+		action getNeighs ! location
 	}
-uses UpdateI }
+uses UpdateI uses ErrorI final f0
+	transition t4 {
+		from SMove
+		to f0
+		trigger communicationError
+	}
+}
 
 module mod0 {
 	connection ctrl_ref1 on connect to ctrl_ref0 on connect
-	connection ctrl_ref1 on get to ctrl_ref0 on get
+	connection ctrl_ref1 on getNeighs to ctrl_ref0 on getNeighs
 	connection ctrl_ref1 on updateLoc to ctrl_ref0 on updateLoc
 	cref ctrl_ref0 = Communication
 	cref ctrl_ref1 = Navegation
@@ -223,8 +229,8 @@ uses FinishedI var updated : boolean = false , got : boolean = false
 	transition t2 {
 		from SConnected
 		to SGetNeighs
-		trigger get?location
-		action # Clk ; max = 1 ; got = false
+		trigger getNeighs ? location
+		action # Clk ; count = 1 ; got = false
 	}
 	transition t6 {
 		from SConnected
@@ -250,8 +256,9 @@ transition t3 {
 		condition updated
 	}
 clock Clk
-uses interface6 const max : int = 3
-	const timeout : int
+uses ErrorI 
+	var count : int = 0
+	const timeout : int = 3
 
 	final f1
 	transition t4 {
@@ -259,20 +266,20 @@ uses interface6 const max : int = 3
 		to SGetNeighs
 		trigger
 		condition not got /\ since ( Clk ) < timeout
-		action max = max + 1
+		action count = count+ 1
 	}
 	transition t5 {
 		from SGetNeighs
 		to f1
 		trigger
-		condition not got /\ max == 3
+		condition not got /\ count == timeout
 		action communicationError
 	}
 	transition t9 {
 		from SUpdate
 		to f1
 		trigger
-		condition not updated /\ max == 3
+		condition not updated /\ count == timeout
 		action communicationError
 	}
 	transition t10 {
@@ -280,7 +287,7 @@ uses interface6 const max : int = 3
 		to SUpdate
 		trigger
 		condition not updated /\ since ( Clk ) < timeout
-		action max = max + 1
+		action count = count + 1
 	}
 }
 
