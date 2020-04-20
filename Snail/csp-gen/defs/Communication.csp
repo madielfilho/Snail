@@ -1,0 +1,2166 @@
+	module Communication
+		shared_variable_events = {|
+		|}		
+		
+	exports
+		transparent diamond
+		transparent sbisim
+		transparent chase
+
+	
+		-- declaring call and ret events for undefined operations
+	
+	
+	
+		module stm_ref0
+		exports
+			-- flow channels
+			channel internal__ : TIDS
+			channel enteredV, enterV, exitV, exitedV : SIDS
+			channel enter, entered: SIDS.SIDS
+			channel exit,exited: SIDS.SIDS
+			channel terminate
+			
+			-- variable channels
+			channel get_neighs, set_neighs: {(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+			channel get_location, set_location: {(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel get_updated, set_updated: core_boolean
+			channel get_got, set_got: core_boolean
+					
+			-- shared variable channels
+			
+			-- local variable channels for defined operations that are required by the state machine
+			
+			-- declaring state machine events
+			channel updateLoc__: TIDS.InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel updateLoc: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel get__: TIDS.InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel get: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel connect__: TIDS.InOut
+			channel connect: InOut
+			channel connect_ack__: TIDS.InOut
+			channel connect_ack: InOut
+			channel coordinatesReq__: TIDS.InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel coordinatesReq: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel coordinates__: TIDS.InOut.{(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+			channel coordinates: InOut.{(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+			channel coordinatesFiware__: TIDS.InOut.{(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+			channel coordinatesFiware: InOut.{(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+			channel update__: TIDS.InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel update: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel updateReq__: TIDS.InOut
+			channel updateReq: InOut
+			channel updateFiware__: TIDS.InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel updateFiware: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel finished__: TIDS.InOut
+			channel finished: InOut
+			channel communicationError__: TIDS.InOut
+			channel communicationError: InOut
+			
+			-- declaring call and ret events for undefined operations
+			
+			-- Only the undefined operations are declared here.
+			-- If the state machine is in isolation, all required operations will be undefined.
+			-- If it is in the context of a controller, the required operations not provided by the
+			-- controller will be declared here, and the defined operations will be defined in the
+			-- context of the Controller module, and therefore within scope of the state machien module.
+			
+			
+			-- definition of functions used to expose flow channels
+			ShowEvents(P,E) = P[[ entered.x____.y____ <- enteredV.y____ | entered.x____.y____ <- E]]
+							   [[ enter.x____.y____ <- enterV.y____ | enter.x____.y____ <- E]]
+							   [[ exit.x____.y____ <- exitV.y____ | exit.x____.y____ <- E]]
+							   [[ exited.x____.y____ <- exitedV.y____ | exited.x____.y____ <- E ]]
+								 
+			ShowEnteredV(P) = P[[ entered.x____.y____ <- enteredV.y____ | x____ <- SIDS, y____ <- SIDS ]]
+			ShowEnterV(P) = P[[ enter.x____.y____ <- enterV.y____ | x____ <- SIDS, y____ <- SIDS ]]
+			ShowExitV(P) = P[[ exit.x____.y____ <- exitV.y____ | x____ <- SIDS, y____ <- SIDS ]]
+			ShowExitedV(P) = P[[ exited.x____.y____ <- exitedV.y____ | x____ <- SIDS, y____ <- SIDS ]]
+			ShowV(P) = P[[ entered.x____.y____ <- enteredV.y____ | x____ <- SIDS, y____ <- SIDS]]
+						[[ enter.x____.y____ <- enterV.y____ | x____ <- SIDS, y____ <- SIDS ]]
+						[[ exit.x____.y____ <- exitV.y____ | x____ <- SIDS, y____ <- SIDS]]
+						[[ exited.x____.y____ <- exitedV.y____ | x____ <- SIDS, y____ <- SIDS ]]
+			
+			-- declaring identifiers of state and final states
+			datatype SIDS = SID_SCommunication
+			              | SID_SCommunication_SInit
+			              | SID_SCommunication_SConnected
+			              | SID_SCommunication_SGetNeighs
+			              | SID_SCommunication_SGetNeighs_SInit
+			              | SID_SCommunication_SGetNeighs_f0
+			              | SID_SCommunication_SUpdate
+			              | SID_SCommunication_SUpdate_SInit
+			              | SID_SCommunication_SUpdate_f0
+			              | SID_SCommunication_f0
+			              | SID_SCommunication_f1
+			
+			-- declaring identifiers of transitions
+			datatype TIDS = NULLTRANSITION__
+			              | TID_SCommunication_SGetNeighs_t0
+			              | TID_SCommunication_SGetNeighs_t1
+			              | TID_SCommunication_SUpdate_t0
+			              | TID_SCommunication_SUpdate_t1
+			              | TID_SCommunication_t0
+			              | TID_SCommunication_t1
+			              | TID_SCommunication_t2
+			              | TID_SCommunication_t6
+			              | TID_SCommunication_t7
+			              | TID_SCommunication_t8
+			              | TID_SCommunication_t3
+			              | TID_SCommunication_t4
+			              | TID_SCommunication_t5
+			              | TID_SCommunication_t9
+			              | TID_SCommunication_t10
+			
+			-- declaring identifiers of transitions that can interupt a state (excludes transitions from junctions)
+			
+			ITIDS = {
+				TID_SCommunication_SGetNeighs_t1,	TID_SCommunication_SUpdate_t1,	TID_SCommunication_t1,	TID_SCommunication_t2,	TID_SCommunication_t6,	TID_SCommunication_t7,	TID_SCommunication_t8,	TID_SCommunication_t3,	TID_SCommunication_t4,	TID_SCommunication_t5,	TID_SCommunication_t9,	TID_SCommunication_t10
+			}
+			
+			int_int = {|
+				updateLoc__.TID_SCommunication_SGetNeighs_t1,
+				get__.TID_SCommunication_SGetNeighs_t1,
+				connect__.TID_SCommunication_SGetNeighs_t1,
+				connect_ack__.TID_SCommunication_SGetNeighs_t1,
+				coordinatesReq__.TID_SCommunication_SGetNeighs_t1,
+				coordinates__.TID_SCommunication_SGetNeighs_t1,
+				coordinatesFiware__.TID_SCommunication_SGetNeighs_t1,
+				update__.TID_SCommunication_SGetNeighs_t1,
+				updateReq__.TID_SCommunication_SGetNeighs_t1,
+				updateFiware__.TID_SCommunication_SGetNeighs_t1,
+				finished__.TID_SCommunication_SGetNeighs_t1,
+				communicationError__.TID_SCommunication_SGetNeighs_t1,
+				internal__.TID_SCommunication_SGetNeighs_t1,
+				updateLoc__.TID_SCommunication_SUpdate_t1,
+				get__.TID_SCommunication_SUpdate_t1,
+				connect__.TID_SCommunication_SUpdate_t1,
+				connect_ack__.TID_SCommunication_SUpdate_t1,
+				coordinatesReq__.TID_SCommunication_SUpdate_t1,
+				coordinates__.TID_SCommunication_SUpdate_t1,
+				coordinatesFiware__.TID_SCommunication_SUpdate_t1,
+				update__.TID_SCommunication_SUpdate_t1,
+				updateReq__.TID_SCommunication_SUpdate_t1,
+				updateFiware__.TID_SCommunication_SUpdate_t1,
+				finished__.TID_SCommunication_SUpdate_t1,
+				communicationError__.TID_SCommunication_SUpdate_t1,
+				internal__.TID_SCommunication_SUpdate_t1,
+				updateLoc__.TID_SCommunication_t1,
+				get__.TID_SCommunication_t1,
+				connect__.TID_SCommunication_t1,
+				connect_ack__.TID_SCommunication_t1,
+				coordinatesReq__.TID_SCommunication_t1,
+				coordinates__.TID_SCommunication_t1,
+				coordinatesFiware__.TID_SCommunication_t1,
+				update__.TID_SCommunication_t1,
+				updateReq__.TID_SCommunication_t1,
+				updateFiware__.TID_SCommunication_t1,
+				finished__.TID_SCommunication_t1,
+				communicationError__.TID_SCommunication_t1,
+				internal__.TID_SCommunication_t1,
+				updateLoc__.TID_SCommunication_t2,
+				get__.TID_SCommunication_t2,
+				connect__.TID_SCommunication_t2,
+				connect_ack__.TID_SCommunication_t2,
+				coordinatesReq__.TID_SCommunication_t2,
+				coordinates__.TID_SCommunication_t2,
+				coordinatesFiware__.TID_SCommunication_t2,
+				update__.TID_SCommunication_t2,
+				updateReq__.TID_SCommunication_t2,
+				updateFiware__.TID_SCommunication_t2,
+				finished__.TID_SCommunication_t2,
+				communicationError__.TID_SCommunication_t2,
+				internal__.TID_SCommunication_t2,
+				updateLoc__.TID_SCommunication_t6,
+				get__.TID_SCommunication_t6,
+				connect__.TID_SCommunication_t6,
+				connect_ack__.TID_SCommunication_t6,
+				coordinatesReq__.TID_SCommunication_t6,
+				coordinates__.TID_SCommunication_t6,
+				coordinatesFiware__.TID_SCommunication_t6,
+				update__.TID_SCommunication_t6,
+				updateReq__.TID_SCommunication_t6,
+				updateFiware__.TID_SCommunication_t6,
+				finished__.TID_SCommunication_t6,
+				communicationError__.TID_SCommunication_t6,
+				internal__.TID_SCommunication_t6,
+				updateLoc__.TID_SCommunication_t7,
+				get__.TID_SCommunication_t7,
+				connect__.TID_SCommunication_t7,
+				connect_ack__.TID_SCommunication_t7,
+				coordinatesReq__.TID_SCommunication_t7,
+				coordinates__.TID_SCommunication_t7,
+				coordinatesFiware__.TID_SCommunication_t7,
+				update__.TID_SCommunication_t7,
+				updateReq__.TID_SCommunication_t7,
+				updateFiware__.TID_SCommunication_t7,
+				finished__.TID_SCommunication_t7,
+				communicationError__.TID_SCommunication_t7,
+				internal__.TID_SCommunication_t7,
+				updateLoc__.TID_SCommunication_t8,
+				get__.TID_SCommunication_t8,
+				connect__.TID_SCommunication_t8,
+				connect_ack__.TID_SCommunication_t8,
+				coordinatesReq__.TID_SCommunication_t8,
+				coordinates__.TID_SCommunication_t8,
+				coordinatesFiware__.TID_SCommunication_t8,
+				update__.TID_SCommunication_t8,
+				updateReq__.TID_SCommunication_t8,
+				updateFiware__.TID_SCommunication_t8,
+				finished__.TID_SCommunication_t8,
+				communicationError__.TID_SCommunication_t8,
+				internal__.TID_SCommunication_t8,
+				updateLoc__.TID_SCommunication_t3,
+				get__.TID_SCommunication_t3,
+				connect__.TID_SCommunication_t3,
+				connect_ack__.TID_SCommunication_t3,
+				coordinatesReq__.TID_SCommunication_t3,
+				coordinates__.TID_SCommunication_t3,
+				coordinatesFiware__.TID_SCommunication_t3,
+				update__.TID_SCommunication_t3,
+				updateReq__.TID_SCommunication_t3,
+				updateFiware__.TID_SCommunication_t3,
+				finished__.TID_SCommunication_t3,
+				communicationError__.TID_SCommunication_t3,
+				internal__.TID_SCommunication_t3,
+				updateLoc__.TID_SCommunication_t4,
+				get__.TID_SCommunication_t4,
+				connect__.TID_SCommunication_t4,
+				connect_ack__.TID_SCommunication_t4,
+				coordinatesReq__.TID_SCommunication_t4,
+				coordinates__.TID_SCommunication_t4,
+				coordinatesFiware__.TID_SCommunication_t4,
+				update__.TID_SCommunication_t4,
+				updateReq__.TID_SCommunication_t4,
+				updateFiware__.TID_SCommunication_t4,
+				finished__.TID_SCommunication_t4,
+				communicationError__.TID_SCommunication_t4,
+				internal__.TID_SCommunication_t4,
+				updateLoc__.TID_SCommunication_t5,
+				get__.TID_SCommunication_t5,
+				connect__.TID_SCommunication_t5,
+				connect_ack__.TID_SCommunication_t5,
+				coordinatesReq__.TID_SCommunication_t5,
+				coordinates__.TID_SCommunication_t5,
+				coordinatesFiware__.TID_SCommunication_t5,
+				update__.TID_SCommunication_t5,
+				updateReq__.TID_SCommunication_t5,
+				updateFiware__.TID_SCommunication_t5,
+				finished__.TID_SCommunication_t5,
+				communicationError__.TID_SCommunication_t5,
+				internal__.TID_SCommunication_t5,
+				updateLoc__.TID_SCommunication_t9,
+				get__.TID_SCommunication_t9,
+				connect__.TID_SCommunication_t9,
+				connect_ack__.TID_SCommunication_t9,
+				coordinatesReq__.TID_SCommunication_t9,
+				coordinates__.TID_SCommunication_t9,
+				coordinatesFiware__.TID_SCommunication_t9,
+				update__.TID_SCommunication_t9,
+				updateReq__.TID_SCommunication_t9,
+				updateFiware__.TID_SCommunication_t9,
+				finished__.TID_SCommunication_t9,
+				communicationError__.TID_SCommunication_t9,
+				internal__.TID_SCommunication_t9,
+				updateLoc__.TID_SCommunication_t10,
+				get__.TID_SCommunication_t10,
+				connect__.TID_SCommunication_t10,
+				connect_ack__.TID_SCommunication_t10,
+				coordinatesReq__.TID_SCommunication_t10,
+				coordinates__.TID_SCommunication_t10,
+				coordinatesFiware__.TID_SCommunication_t10,
+				update__.TID_SCommunication_t10,
+				updateReq__.TID_SCommunication_t10,
+				updateFiware__.TID_SCommunication_t10,
+				finished__.TID_SCommunication_t10,
+				communicationError__.TID_SCommunication_t10,
+				internal__.TID_SCommunication_t10
+			|}
+				
+			
+			internal_events = {|enter,entered,exit,exited|}
+			shared_variable_events = {|
+			|}
+					
+			
+			-- declaring all states
+			CS_SCommunication_SInit_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SCommunication_SInit,SID_SCommunication_SConnected,SID_SCommunication_SGetNeighs,SID_SCommunication_SUpdate,SID_SCommunication_f0,SID_SCommunication_f1},
+				y____ <- {SID_SCommunication_SInit}
+			|}
+			
+			
+			SCommunication_SInit_triggers = {|
+				internal__.TID_SCommunication_t10,
+				connect__.TID_SCommunication_t1,
+				internal__.TID_SCommunication_t9,
+				get__.TID_SCommunication_t2,
+				finished__.TID_SCommunication_t6,
+				internal__.TID_SCommunication_t8,
+				internal__.TID_SCommunication_t4,
+				update__.TID_SCommunication_t7,
+				internal__.TID_SCommunication_t5,
+				internal__.TID_SCommunication_t3
+			|}
+			
+			State_SCommunication_SInit(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = let
+				T_SCommunication_t1(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout) = connect__!TID_SCommunication_t1.in ->  (exit.SID_SCommunication_SInit.SID_SCommunication_SInit -> SKIP;
+									SKIP;exited.SID_SCommunication_SInit.SID_SCommunication_SInit -> SKIP;
+									true&(connect_ack.out -> SKIP);enter!SID_SCommunication_SInit!SID_SCommunication_SConnected -> entered!SID_SCommunication_SInit!SID_SCommunication_SConnected ->
+									State_SCommunication_SInit(id__,
+											    const_SCommunication_max,
+											    const_SCommunication_timeout)
+				)
+				State_SCommunication_SInit_execute(id__,o____) = SKIP; 
+					entered!o____!SID_SCommunication_SInit ->
+					(SKIP; STOP /\ (
+						T_SCommunication_t1(id__,
+								    const_SCommunication_max,
+								    const_SCommunication_timeout)
+						[]
+						internal__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t1,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3}) -> exit?y____:diff(SIDS,{SID_SCommunication_SInit})!SID_SCommunication_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SInit -> SKIP);
+								State_SCommunication_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateLoc__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t1,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SInit})!SID_SCommunication_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SInit -> SKIP);
+								State_SCommunication_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] get__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t1,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SInit})!SID_SCommunication_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SInit -> SKIP);
+								State_SCommunication_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t1,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SInit})!SID_SCommunication_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SInit -> SKIP);
+								State_SCommunication_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect_ack__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t1,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SInit})!SID_SCommunication_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SInit -> SKIP);
+								State_SCommunication_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t1,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SInit})!SID_SCommunication_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SInit -> SKIP);
+								State_SCommunication_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinates__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t1,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SInit})!SID_SCommunication_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SInit -> SKIP);
+								State_SCommunication_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t1,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SInit})!SID_SCommunication_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SInit -> SKIP);
+								State_SCommunication_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] update__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t1,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SInit})!SID_SCommunication_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SInit -> SKIP);
+								State_SCommunication_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t1,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SInit})!SID_SCommunication_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SInit -> SKIP);
+								State_SCommunication_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t1,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SInit})!SID_SCommunication_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SInit -> SKIP);
+								State_SCommunication_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] finished__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t1,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SInit})!SID_SCommunication_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SInit -> SKIP);
+								State_SCommunication_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] communicationError__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t1,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SInit})!SID_SCommunication_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SInit -> SKIP);
+								State_SCommunication_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+					))
+			within
+				enter?x____:diff(SIDS,{SID_SCommunication_SInit})!SID_SCommunication_SInit -> (State_SCommunication_SInit_execute(id__,x____))
+			
+			CS_SCommunication_SConnected_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SCommunication_SInit,SID_SCommunication_SConnected,SID_SCommunication_SGetNeighs,SID_SCommunication_SUpdate,SID_SCommunication_f0,SID_SCommunication_f1},
+				y____ <- {SID_SCommunication_SConnected}
+			|}
+			
+			
+			SCommunication_SConnected_triggers = {|
+				internal__.TID_SCommunication_t10,
+				internal__.TID_SCommunication_t9,
+				get__.TID_SCommunication_t2,
+				finished__.TID_SCommunication_t6,
+				internal__.TID_SCommunication_t8,
+				internal__.TID_SCommunication_t4,
+				update__.TID_SCommunication_t7,
+				internal__.TID_SCommunication_t5,
+				internal__.TID_SCommunication_t3
+			|}
+			
+			State_SCommunication_SConnected(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = let
+				T_SCommunication_t2(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout) = get__!TID_SCommunication_t2.in?location -> set_location!location ->  (exit.SID_SCommunication_SConnected.SID_SCommunication_SConnected -> SKIP;
+									SKIP;exited.SID_SCommunication_SConnected.SID_SCommunication_SConnected -> SKIP;
+									SKIP;true & (set_max!1 -> SKIP);true & (set_got!false -> SKIP);enter!SID_SCommunication_SConnected!SID_SCommunication_SGetNeighs -> entered!SID_SCommunication_SConnected!SID_SCommunication_SGetNeighs ->
+									State_SCommunication_SConnected(id__,
+											    const_SCommunication_max,
+											    const_SCommunication_timeout)
+				)
+				T_SCommunication_t6(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout) = finished__!TID_SCommunication_t6.in ->  (exit.SID_SCommunication_SConnected.SID_SCommunication_SConnected -> SKIP;
+									SKIP;exited.SID_SCommunication_SConnected.SID_SCommunication_SConnected -> SKIP;
+									enter!SID_SCommunication_SConnected!SID_SCommunication_f0 -> entered!SID_SCommunication_SConnected!SID_SCommunication_f0 ->
+									State_SCommunication_SConnected(id__,
+											    const_SCommunication_max,
+											    const_SCommunication_timeout)
+				)
+				T_SCommunication_t7(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout) = update__!TID_SCommunication_t7.in?location -> set_location!location ->  (exit.SID_SCommunication_SConnected.SID_SCommunication_SConnected -> SKIP;
+									SKIP;exited.SID_SCommunication_SConnected.SID_SCommunication_SConnected -> SKIP;
+									SKIP;enter!SID_SCommunication_SConnected!SID_SCommunication_SUpdate -> entered!SID_SCommunication_SConnected!SID_SCommunication_SUpdate ->
+									State_SCommunication_SConnected(id__,
+											    const_SCommunication_max,
+											    const_SCommunication_timeout)
+				)
+				State_SCommunication_SConnected_execute(id__,o____) = SKIP; 
+					entered!o____!SID_SCommunication_SConnected ->
+					(SKIP; STOP /\ (
+						T_SCommunication_t2(id__,
+								    const_SCommunication_max,
+								    const_SCommunication_timeout)[]
+						T_SCommunication_t6(id__,
+								    const_SCommunication_max,
+								    const_SCommunication_timeout)[]
+						T_SCommunication_t7(id__,
+								    const_SCommunication_max,
+								    const_SCommunication_timeout)
+						[]
+						internal__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3}) -> exit?y____:diff(SIDS,{SID_SCommunication_SConnected})!SID_SCommunication_SConnected -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SConnected -> SKIP);
+								State_SCommunication_SConnected(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateLoc__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SConnected})!SID_SCommunication_SConnected -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SConnected -> SKIP);
+								State_SCommunication_SConnected(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] get__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SConnected})!SID_SCommunication_SConnected -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SConnected -> SKIP);
+								State_SCommunication_SConnected(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SConnected})!SID_SCommunication_SConnected -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SConnected -> SKIP);
+								State_SCommunication_SConnected(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect_ack__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SConnected})!SID_SCommunication_SConnected -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SConnected -> SKIP);
+								State_SCommunication_SConnected(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SConnected})!SID_SCommunication_SConnected -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SConnected -> SKIP);
+								State_SCommunication_SConnected(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinates__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SConnected})!SID_SCommunication_SConnected -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SConnected -> SKIP);
+								State_SCommunication_SConnected(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SConnected})!SID_SCommunication_SConnected -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SConnected -> SKIP);
+								State_SCommunication_SConnected(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] update__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SConnected})!SID_SCommunication_SConnected -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SConnected -> SKIP);
+								State_SCommunication_SConnected(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SConnected})!SID_SCommunication_SConnected -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SConnected -> SKIP);
+								State_SCommunication_SConnected(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SConnected})!SID_SCommunication_SConnected -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SConnected -> SKIP);
+								State_SCommunication_SConnected(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] finished__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SConnected})!SID_SCommunication_SConnected -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SConnected -> SKIP);
+								State_SCommunication_SConnected(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] communicationError__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SConnected})!SID_SCommunication_SConnected -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SConnected -> SKIP);
+								State_SCommunication_SConnected(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+					))
+			within
+				enter?x____:diff(SIDS,{SID_SCommunication_SConnected})!SID_SCommunication_SConnected -> (State_SCommunication_SConnected_execute(id__,x____))
+			
+			CS_SCommunication_SGetNeighs_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SCommunication_SInit,SID_SCommunication_SConnected,SID_SCommunication_SGetNeighs,SID_SCommunication_SUpdate,SID_SCommunication_f0,SID_SCommunication_f1},
+				y____ <- {SID_SCommunication_SGetNeighs}
+			|}
+			
+			SCommunication_SGetNeighs_int_int = {|
+				updateLoc__.TID_SCommunication_SGetNeighs_t1,
+				get__.TID_SCommunication_SGetNeighs_t1,
+				connect__.TID_SCommunication_SGetNeighs_t1,
+				connect_ack__.TID_SCommunication_SGetNeighs_t1,
+				coordinatesReq__.TID_SCommunication_SGetNeighs_t1,
+				coordinates__.TID_SCommunication_SGetNeighs_t1,
+				coordinatesFiware__.TID_SCommunication_SGetNeighs_t1,
+				update__.TID_SCommunication_SGetNeighs_t1,
+				updateReq__.TID_SCommunication_SGetNeighs_t1,
+				updateFiware__.TID_SCommunication_SGetNeighs_t1,
+				finished__.TID_SCommunication_SGetNeighs_t1,
+				communicationError__.TID_SCommunication_SGetNeighs_t1,
+				internal__.TID_SCommunication_SGetNeighs_t1
+			|}
+				
+			
+			SCommunication_SGetNeighs_int_triggers = {|
+				internal__.TID_SCommunication_SGetNeighs_t0,
+				coordinatesFiware__.TID_SCommunication_SGetNeighs_t1
+			|}
+			
+			State_SCommunication_SGetNeighs_SInit_R(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = 
+				State_SCommunication_SGetNeighs_SInit(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+			 		[|diff(SCommunication_SGetNeighs_int_int,SCommunication_SGetNeighs_SInit_triggers)|]
+			 	SKIP
+			 		
+			State_SCommunication_SGetNeighs_f0_R(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = 
+				State_SCommunication_SGetNeighs_f0(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+			 		[|diff(SCommunication_SGetNeighs_int_int,SCommunication_SGetNeighs_f0_triggers)|]
+			 	SKIP
+			 		
+			State_SCommunication_SGetNeighs(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = (
+				State_SCommunication_SGetNeighs_aux(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+					[|
+						union(
+							diff(int_int, SCommunication_SGetNeighs_int_triggers),
+							{|enter.x____.y____,
+							  entered.x____.y____,
+							  exit.x____.y____,
+							  exited.x____.y____ |
+							  x____ <- diff(SIDS,{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0}),
+							  y____ <- {SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0}
+						    |}
+						)
+					|]
+				(
+					State_SCommunication_SGetNeighs_SInit_R(id__,
+							    const_SCommunication_max,
+							    const_SCommunication_timeout)
+						[|inter(CS_SCommunication_SGetNeighs_SInit_sync,CS_SCommunication_SGetNeighs_f0_sync)|]
+					State_SCommunication_SGetNeighs_f0_R(id__,
+							    const_SCommunication_max,
+							    const_SCommunication_timeout)
+				)
+			)
+			
+			SCommunication_SGetNeighs_triggers = {|
+				internal__.TID_SCommunication_t10,
+				internal__.TID_SCommunication_t9,
+				get__.TID_SCommunication_t2,
+				finished__.TID_SCommunication_t6,
+				internal__.TID_SCommunication_t8,
+				internal__.TID_SCommunication_t4,
+				internal__.TID_SCommunication_SGetNeighs_t0,
+				coordinatesFiware__.TID_SCommunication_SGetNeighs_t1,
+				update__.TID_SCommunication_t7,
+				internal__.TID_SCommunication_t5,
+				internal__.TID_SCommunication_t3
+			|}
+			
+			State_SCommunication_SGetNeighs_aux(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = let
+				T_SCommunication_t8(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout) = internal__!TID_SCommunication_t8 ->  exit.SID_SCommunication_SGetNeighs.SID_SCommunication_SGetNeighs -> SKIP;
+									exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+											SKIP;
+									SKIP;exited.SID_SCommunication_SGetNeighs.SID_SCommunication_SGetNeighs -> SKIP;
+									enter!SID_SCommunication_SGetNeighs!SID_SCommunication_SConnected -> entered!SID_SCommunication_SGetNeighs!SID_SCommunication_SConnected ->
+									State_SCommunication_SGetNeighs_aux(id__,
+											    const_SCommunication_max,
+											    const_SCommunication_timeout)
+				T_SCommunication_t4(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout) = internal__!TID_SCommunication_t4 ->  exit.SID_SCommunication_SGetNeighs.SID_SCommunication_SGetNeighs -> SKIP;
+									exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+											SKIP;
+									SKIP;exited.SID_SCommunication_SGetNeighs.SID_SCommunication_SGetNeighs -> SKIP;
+									true & (set_max!Plus(const_SCommunication_max, 1, core_int) -> SKIP);enter!SID_SCommunication_SGetNeighs!SID_SCommunication_SGetNeighs -> State_SCommunication_SGetNeighs_aux_execute(id__,SID_SCommunication_SGetNeighs)
+				T_SCommunication_t5(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout) = internal__!TID_SCommunication_t5 ->  exit.SID_SCommunication_SGetNeighs.SID_SCommunication_SGetNeighs -> SKIP;
+									exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+											SKIP;
+									SKIP;exited.SID_SCommunication_SGetNeighs.SID_SCommunication_SGetNeighs -> SKIP;
+									true&(communicationError.out -> SKIP);enter!SID_SCommunication_SGetNeighs!SID_SCommunication_f1 -> entered!SID_SCommunication_SGetNeighs!SID_SCommunication_f1 ->
+									State_SCommunication_SGetNeighs_aux(id__,
+											    const_SCommunication_max,
+											    const_SCommunication_timeout)
+				State_SCommunication_SGetNeighs_aux_execute(id__,o____) = SKIP; 
+				I_SCommunication_SGetNeighs_i0(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout);
+					entered!o____!SID_SCommunication_SGetNeighs ->
+					(SKIP; STOP /\ (
+						T_SCommunication_t8(id__,
+								    const_SCommunication_max,
+								    const_SCommunication_timeout)[]
+						T_SCommunication_t4(id__,
+								    const_SCommunication_max,
+								    const_SCommunication_timeout)[]
+						T_SCommunication_t5(id__,
+								    const_SCommunication_max,
+								    const_SCommunication_timeout)
+						[]
+						internal__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_SGetNeighs_t0,TID_SCommunication_SGetNeighs_t1,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3}) -> exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs})!SID_SCommunication_SGetNeighs -> (
+								exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs -> SKIP);
+								State_SCommunication_SGetNeighs_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateLoc__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_SGetNeighs_t0,TID_SCommunication_SGetNeighs_t1,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs})!SID_SCommunication_SGetNeighs -> (
+								exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs -> SKIP);
+								State_SCommunication_SGetNeighs_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] get__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_SGetNeighs_t0,TID_SCommunication_SGetNeighs_t1,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs})!SID_SCommunication_SGetNeighs -> (
+								exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs -> SKIP);
+								State_SCommunication_SGetNeighs_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_SGetNeighs_t0,TID_SCommunication_SGetNeighs_t1,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs})!SID_SCommunication_SGetNeighs -> (
+								exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs -> SKIP);
+								State_SCommunication_SGetNeighs_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect_ack__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_SGetNeighs_t0,TID_SCommunication_SGetNeighs_t1,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs})!SID_SCommunication_SGetNeighs -> (
+								exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs -> SKIP);
+								State_SCommunication_SGetNeighs_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_SGetNeighs_t0,TID_SCommunication_SGetNeighs_t1,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs})!SID_SCommunication_SGetNeighs -> (
+								exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs -> SKIP);
+								State_SCommunication_SGetNeighs_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinates__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_SGetNeighs_t0,TID_SCommunication_SGetNeighs_t1,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs})!SID_SCommunication_SGetNeighs -> (
+								exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs -> SKIP);
+								State_SCommunication_SGetNeighs_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_SGetNeighs_t0,TID_SCommunication_SGetNeighs_t1,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs})!SID_SCommunication_SGetNeighs -> (
+								exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs -> SKIP);
+								State_SCommunication_SGetNeighs_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] update__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_SGetNeighs_t0,TID_SCommunication_SGetNeighs_t1,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs})!SID_SCommunication_SGetNeighs -> (
+								exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs -> SKIP);
+								State_SCommunication_SGetNeighs_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_SGetNeighs_t0,TID_SCommunication_SGetNeighs_t1,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs})!SID_SCommunication_SGetNeighs -> (
+								exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs -> SKIP);
+								State_SCommunication_SGetNeighs_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_SGetNeighs_t0,TID_SCommunication_SGetNeighs_t1,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs})!SID_SCommunication_SGetNeighs -> (
+								exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs -> SKIP);
+								State_SCommunication_SGetNeighs_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] finished__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_SGetNeighs_t0,TID_SCommunication_SGetNeighs_t1,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs})!SID_SCommunication_SGetNeighs -> (
+								exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs -> SKIP);
+								State_SCommunication_SGetNeighs_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] communicationError__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_SGetNeighs_t0,TID_SCommunication_SGetNeighs_t1,TID_SCommunication_t7,TID_SCommunication_t5,TID_SCommunication_t3})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs})!SID_SCommunication_SGetNeighs -> (
+								exit!SID_SCommunication_SGetNeighs?z____:{SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0} -> exited!SID_SCommunication_SGetNeighs!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs -> SKIP);
+								State_SCommunication_SGetNeighs_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+					))
+			within
+				enter?x____:diff(SIDS,{SID_SCommunication_SGetNeighs})!SID_SCommunication_SGetNeighs -> (State_SCommunication_SGetNeighs_aux_execute(id__,x____))
+			
+			CS_SCommunication_SGetNeighs_SInit_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0},
+				y____ <- {SID_SCommunication_SGetNeighs_SInit}
+			|}
+			
+			
+			SCommunication_SGetNeighs_SInit_triggers = {|
+				coordinatesFiware__.TID_SCommunication_SGetNeighs_t1
+			|}
+			
+			State_SCommunication_SGetNeighs_SInit(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = let
+				T_SCommunication_SGetNeighs_t1(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout) = coordinatesFiware__!TID_SCommunication_SGetNeighs_t1.in?neighs -> set_neighs!neighs ->  (exit.SID_SCommunication_SGetNeighs_SInit.SID_SCommunication_SGetNeighs_SInit -> SKIP;
+									SKIP;exited.SID_SCommunication_SGetNeighs_SInit.SID_SCommunication_SGetNeighs_SInit -> SKIP;
+									get_neighs?neighs -> true&(coordinates.out!neighs -> SKIP);true & (set_got!true -> SKIP);enter!SID_SCommunication_SGetNeighs_SInit!SID_SCommunication_SGetNeighs_f0 -> entered!SID_SCommunication_SGetNeighs_SInit!SID_SCommunication_SGetNeighs_f0 ->
+									State_SCommunication_SGetNeighs_SInit(id__,
+											    const_SCommunication_max,
+											    const_SCommunication_timeout)
+				)
+				State_SCommunication_SGetNeighs_SInit_execute(id__,o____) = get_location?location -> true&(coordinatesReq.out!location -> SKIP); 
+					entered!o____!SID_SCommunication_SGetNeighs_SInit ->
+					(SKIP; STOP /\ (
+						T_SCommunication_SGetNeighs_t1(id__,
+								    const_SCommunication_max,
+								    const_SCommunication_timeout)
+						[]
+						internal__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SGetNeighs_t1}) -> exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_SInit})!SID_SCommunication_SGetNeighs_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_SInit -> SKIP);
+								State_SCommunication_SGetNeighs_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateLoc__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SGetNeighs_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_SInit})!SID_SCommunication_SGetNeighs_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_SInit -> SKIP);
+								State_SCommunication_SGetNeighs_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] get__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SGetNeighs_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_SInit})!SID_SCommunication_SGetNeighs_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_SInit -> SKIP);
+								State_SCommunication_SGetNeighs_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SGetNeighs_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_SInit})!SID_SCommunication_SGetNeighs_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_SInit -> SKIP);
+								State_SCommunication_SGetNeighs_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect_ack__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SGetNeighs_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_SInit})!SID_SCommunication_SGetNeighs_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_SInit -> SKIP);
+								State_SCommunication_SGetNeighs_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SGetNeighs_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_SInit})!SID_SCommunication_SGetNeighs_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_SInit -> SKIP);
+								State_SCommunication_SGetNeighs_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinates__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SGetNeighs_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_SInit})!SID_SCommunication_SGetNeighs_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_SInit -> SKIP);
+								State_SCommunication_SGetNeighs_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SGetNeighs_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_SInit})!SID_SCommunication_SGetNeighs_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_SInit -> SKIP);
+								State_SCommunication_SGetNeighs_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] update__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SGetNeighs_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_SInit})!SID_SCommunication_SGetNeighs_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_SInit -> SKIP);
+								State_SCommunication_SGetNeighs_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SGetNeighs_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_SInit})!SID_SCommunication_SGetNeighs_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_SInit -> SKIP);
+								State_SCommunication_SGetNeighs_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SGetNeighs_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_SInit})!SID_SCommunication_SGetNeighs_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_SInit -> SKIP);
+								State_SCommunication_SGetNeighs_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] finished__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SGetNeighs_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_SInit})!SID_SCommunication_SGetNeighs_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_SInit -> SKIP);
+								State_SCommunication_SGetNeighs_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] communicationError__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SGetNeighs_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_SInit})!SID_SCommunication_SGetNeighs_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_SInit -> SKIP);
+								State_SCommunication_SGetNeighs_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+					))
+			within
+				enter?x____:diff(SIDS,{SID_SCommunication_SGetNeighs_SInit})!SID_SCommunication_SGetNeighs_SInit -> (State_SCommunication_SGetNeighs_SInit_execute(id__,x____))
+			
+			CS_SCommunication_SGetNeighs_f0_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SCommunication_SGetNeighs_SInit,SID_SCommunication_SGetNeighs_f0},
+				y____ <- {SID_SCommunication_SGetNeighs_f0}
+			|}
+			
+			
+			SCommunication_SGetNeighs_f0_triggers = {|
+			|}
+			
+			State_SCommunication_SGetNeighs_f0(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = let
+				State_SCommunication_SGetNeighs_f0_execute(id__,o____) = SKIP; 
+					entered!o____!SID_SCommunication_SGetNeighs_f0 ->
+					(SKIP; STOP /\ (
+						internal__?x____:diff(ITIDS,{NULLTRANSITION__}) -> exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_f0})!SID_SCommunication_SGetNeighs_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_f0 -> SKIP);
+								State_SCommunication_SGetNeighs_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateLoc__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_f0})!SID_SCommunication_SGetNeighs_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_f0 -> SKIP);
+								State_SCommunication_SGetNeighs_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] get__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_f0})!SID_SCommunication_SGetNeighs_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_f0 -> SKIP);
+								State_SCommunication_SGetNeighs_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect__?x____:diff(ITIDS,{NULLTRANSITION__})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_f0})!SID_SCommunication_SGetNeighs_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_f0 -> SKIP);
+								State_SCommunication_SGetNeighs_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect_ack__?x____:diff(ITIDS,{NULLTRANSITION__})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_f0})!SID_SCommunication_SGetNeighs_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_f0 -> SKIP);
+								State_SCommunication_SGetNeighs_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesReq__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_f0})!SID_SCommunication_SGetNeighs_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_f0 -> SKIP);
+								State_SCommunication_SGetNeighs_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinates__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_f0})!SID_SCommunication_SGetNeighs_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_f0 -> SKIP);
+								State_SCommunication_SGetNeighs_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesFiware__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_f0})!SID_SCommunication_SGetNeighs_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_f0 -> SKIP);
+								State_SCommunication_SGetNeighs_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] update__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_f0})!SID_SCommunication_SGetNeighs_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_f0 -> SKIP);
+								State_SCommunication_SGetNeighs_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateReq__?x____:diff(ITIDS,{NULLTRANSITION__})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_f0})!SID_SCommunication_SGetNeighs_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_f0 -> SKIP);
+								State_SCommunication_SGetNeighs_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateFiware__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_f0})!SID_SCommunication_SGetNeighs_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_f0 -> SKIP);
+								State_SCommunication_SGetNeighs_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] finished__?x____:diff(ITIDS,{NULLTRANSITION__})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_f0})!SID_SCommunication_SGetNeighs_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_f0 -> SKIP);
+								State_SCommunication_SGetNeighs_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] communicationError__?x____:diff(ITIDS,{NULLTRANSITION__})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SGetNeighs_f0})!SID_SCommunication_SGetNeighs_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SGetNeighs_f0 -> SKIP);
+								State_SCommunication_SGetNeighs_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+					))
+			within
+				enter?x____:diff(SIDS,{SID_SCommunication_SGetNeighs_f0})!SID_SCommunication_SGetNeighs_f0 -> (State_SCommunication_SGetNeighs_f0_execute(id__,x____))
+			
+			CS_SCommunication_SUpdate_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SCommunication_SInit,SID_SCommunication_SConnected,SID_SCommunication_SGetNeighs,SID_SCommunication_SUpdate,SID_SCommunication_f0,SID_SCommunication_f1},
+				y____ <- {SID_SCommunication_SUpdate}
+			|}
+			
+			SCommunication_SUpdate_int_int = {|
+				updateLoc__.TID_SCommunication_SUpdate_t1,
+				get__.TID_SCommunication_SUpdate_t1,
+				connect__.TID_SCommunication_SUpdate_t1,
+				connect_ack__.TID_SCommunication_SUpdate_t1,
+				coordinatesReq__.TID_SCommunication_SUpdate_t1,
+				coordinates__.TID_SCommunication_SUpdate_t1,
+				coordinatesFiware__.TID_SCommunication_SUpdate_t1,
+				update__.TID_SCommunication_SUpdate_t1,
+				updateReq__.TID_SCommunication_SUpdate_t1,
+				updateFiware__.TID_SCommunication_SUpdate_t1,
+				finished__.TID_SCommunication_SUpdate_t1,
+				communicationError__.TID_SCommunication_SUpdate_t1,
+				internal__.TID_SCommunication_SUpdate_t1
+			|}
+				
+			
+			SCommunication_SUpdate_int_triggers = {|
+				internal__.TID_SCommunication_SUpdate_t0,
+				internal__.TID_SCommunication_SUpdate_t1
+			|}
+			
+			State_SCommunication_SUpdate_SInit_R(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = 
+				State_SCommunication_SUpdate_SInit(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+			 		[|diff(SCommunication_SUpdate_int_int,SCommunication_SUpdate_SInit_triggers)|]
+			 	SKIP
+			 		
+			State_SCommunication_SUpdate_f0_R(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = 
+				State_SCommunication_SUpdate_f0(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+			 		[|diff(SCommunication_SUpdate_int_int,SCommunication_SUpdate_f0_triggers)|]
+			 	SKIP
+			 		
+			State_SCommunication_SUpdate(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = (
+				State_SCommunication_SUpdate_aux(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+					[|
+						union(
+							diff(int_int, SCommunication_SUpdate_int_triggers),
+							{|enter.x____.y____,
+							  entered.x____.y____,
+							  exit.x____.y____,
+							  exited.x____.y____ |
+							  x____ <- diff(SIDS,{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0}),
+							  y____ <- {SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0}
+						    |}
+						)
+					|]
+				(
+					State_SCommunication_SUpdate_SInit_R(id__,
+							    const_SCommunication_max,
+							    const_SCommunication_timeout)
+						[|inter(CS_SCommunication_SUpdate_SInit_sync,CS_SCommunication_SUpdate_f0_sync)|]
+					State_SCommunication_SUpdate_f0_R(id__,
+							    const_SCommunication_max,
+							    const_SCommunication_timeout)
+				)
+			)
+			
+			SCommunication_SUpdate_triggers = {|
+				internal__.TID_SCommunication_t10,
+				internal__.TID_SCommunication_t9,
+				internal__.TID_SCommunication_SUpdate_t0,
+				get__.TID_SCommunication_t2,
+				finished__.TID_SCommunication_t6,
+				internal__.TID_SCommunication_t8,
+				internal__.TID_SCommunication_t4,
+				update__.TID_SCommunication_t7,
+				internal__.TID_SCommunication_SUpdate_t1,
+				internal__.TID_SCommunication_t3,
+				internal__.TID_SCommunication_t5
+			|}
+			
+			State_SCommunication_SUpdate_aux(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = let
+				T_SCommunication_t3(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout) = internal__!TID_SCommunication_t3 ->  exit.SID_SCommunication_SUpdate.SID_SCommunication_SUpdate -> SKIP;
+									exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+											SKIP;
+									SKIP;exited.SID_SCommunication_SUpdate.SID_SCommunication_SUpdate -> SKIP;
+									enter!SID_SCommunication_SUpdate!SID_SCommunication_SConnected -> entered!SID_SCommunication_SUpdate!SID_SCommunication_SConnected ->
+									State_SCommunication_SUpdate_aux(id__,
+											    const_SCommunication_max,
+											    const_SCommunication_timeout)
+				T_SCommunication_t9(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout) = internal__!TID_SCommunication_t9 ->  exit.SID_SCommunication_SUpdate.SID_SCommunication_SUpdate -> SKIP;
+									exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+											SKIP;
+									SKIP;exited.SID_SCommunication_SUpdate.SID_SCommunication_SUpdate -> SKIP;
+									true&(communicationError.out -> SKIP);enter!SID_SCommunication_SUpdate!SID_SCommunication_f1 -> entered!SID_SCommunication_SUpdate!SID_SCommunication_f1 ->
+									State_SCommunication_SUpdate_aux(id__,
+											    const_SCommunication_max,
+											    const_SCommunication_timeout)
+				T_SCommunication_t10(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout) = internal__!TID_SCommunication_t10 ->  exit.SID_SCommunication_SUpdate.SID_SCommunication_SUpdate -> SKIP;
+									exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+											SKIP;
+									SKIP;exited.SID_SCommunication_SUpdate.SID_SCommunication_SUpdate -> SKIP;
+									true & (set_max!Plus(const_SCommunication_max, 1, core_int) -> SKIP);enter!SID_SCommunication_SUpdate!SID_SCommunication_SUpdate -> State_SCommunication_SUpdate_aux_execute(id__,SID_SCommunication_SUpdate)
+				State_SCommunication_SUpdate_aux_execute(id__,o____) = SKIP; 
+				I_SCommunication_SUpdate_i0(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout);
+					entered!o____!SID_SCommunication_SUpdate ->
+					(SKIP; STOP /\ (
+						T_SCommunication_t3(id__,
+								    const_SCommunication_max,
+								    const_SCommunication_timeout)[]
+						T_SCommunication_t9(id__,
+								    const_SCommunication_max,
+								    const_SCommunication_timeout)[]
+						T_SCommunication_t10(id__,
+								    const_SCommunication_max,
+								    const_SCommunication_timeout)
+						[]
+						internal__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_SUpdate_t0,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_SUpdate_t1,TID_SCommunication_t3,TID_SCommunication_t5}) -> exit?y____:diff(SIDS,{SID_SCommunication_SUpdate})!SID_SCommunication_SUpdate -> (
+								exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate -> SKIP);
+								State_SCommunication_SUpdate_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateLoc__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_SUpdate_t0,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_SUpdate_t1,TID_SCommunication_t3,TID_SCommunication_t5})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate})!SID_SCommunication_SUpdate -> (
+								exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate -> SKIP);
+								State_SCommunication_SUpdate_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] get__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_SUpdate_t0,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_SUpdate_t1,TID_SCommunication_t3,TID_SCommunication_t5})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate})!SID_SCommunication_SUpdate -> (
+								exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate -> SKIP);
+								State_SCommunication_SUpdate_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_SUpdate_t0,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_SUpdate_t1,TID_SCommunication_t3,TID_SCommunication_t5})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate})!SID_SCommunication_SUpdate -> (
+								exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate -> SKIP);
+								State_SCommunication_SUpdate_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect_ack__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_SUpdate_t0,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_SUpdate_t1,TID_SCommunication_t3,TID_SCommunication_t5})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate})!SID_SCommunication_SUpdate -> (
+								exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate -> SKIP);
+								State_SCommunication_SUpdate_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_SUpdate_t0,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_SUpdate_t1,TID_SCommunication_t3,TID_SCommunication_t5})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate})!SID_SCommunication_SUpdate -> (
+								exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate -> SKIP);
+								State_SCommunication_SUpdate_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinates__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_SUpdate_t0,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_SUpdate_t1,TID_SCommunication_t3,TID_SCommunication_t5})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate})!SID_SCommunication_SUpdate -> (
+								exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate -> SKIP);
+								State_SCommunication_SUpdate_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_SUpdate_t0,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_SUpdate_t1,TID_SCommunication_t3,TID_SCommunication_t5})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate})!SID_SCommunication_SUpdate -> (
+								exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate -> SKIP);
+								State_SCommunication_SUpdate_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] update__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_SUpdate_t0,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_SUpdate_t1,TID_SCommunication_t3,TID_SCommunication_t5})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate})!SID_SCommunication_SUpdate -> (
+								exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate -> SKIP);
+								State_SCommunication_SUpdate_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_SUpdate_t0,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_SUpdate_t1,TID_SCommunication_t3,TID_SCommunication_t5})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate})!SID_SCommunication_SUpdate -> (
+								exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate -> SKIP);
+								State_SCommunication_SUpdate_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_SUpdate_t0,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_SUpdate_t1,TID_SCommunication_t3,TID_SCommunication_t5})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate})!SID_SCommunication_SUpdate -> (
+								exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate -> SKIP);
+								State_SCommunication_SUpdate_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] finished__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_SUpdate_t0,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_SUpdate_t1,TID_SCommunication_t3,TID_SCommunication_t5})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate})!SID_SCommunication_SUpdate -> (
+								exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate -> SKIP);
+								State_SCommunication_SUpdate_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] communicationError__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_t10,TID_SCommunication_t9,TID_SCommunication_SUpdate_t0,TID_SCommunication_t2,TID_SCommunication_t6,TID_SCommunication_t8,TID_SCommunication_t4,TID_SCommunication_t7,TID_SCommunication_SUpdate_t1,TID_SCommunication_t3,TID_SCommunication_t5})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate})!SID_SCommunication_SUpdate -> (
+								exit!SID_SCommunication_SUpdate?z____:{SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0} -> exited!SID_SCommunication_SUpdate!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate -> SKIP);
+								State_SCommunication_SUpdate_aux(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+					))
+			within
+				enter?x____:diff(SIDS,{SID_SCommunication_SUpdate})!SID_SCommunication_SUpdate -> (State_SCommunication_SUpdate_aux_execute(id__,x____))
+			
+			CS_SCommunication_SUpdate_SInit_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0},
+				y____ <- {SID_SCommunication_SUpdate_SInit}
+			|}
+			
+			
+			SCommunication_SUpdate_SInit_triggers = {|
+				internal__.TID_SCommunication_SUpdate_t1
+			|}
+			
+			State_SCommunication_SUpdate_SInit(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = let
+				T_SCommunication_SUpdate_t1(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout) = internal__!TID_SCommunication_SUpdate_t1 ->  exit.SID_SCommunication_SUpdate_SInit.SID_SCommunication_SUpdate_SInit -> SKIP;
+									SKIP;exited.SID_SCommunication_SUpdate_SInit.SID_SCommunication_SUpdate_SInit -> SKIP;
+									get_location?location -> true&(updateFiware.out!location -> SKIP);true & (set_updated!true -> SKIP);enter!SID_SCommunication_SUpdate_SInit!SID_SCommunication_SUpdate_f0 -> entered!SID_SCommunication_SUpdate_SInit!SID_SCommunication_SUpdate_f0 ->
+									State_SCommunication_SUpdate_SInit(id__,
+											    const_SCommunication_max,
+											    const_SCommunication_timeout)
+				State_SCommunication_SUpdate_SInit_execute(id__,o____) = true&(updateReq.out -> SKIP); 
+					entered!o____!SID_SCommunication_SUpdate_SInit ->
+					(SKIP; STOP /\ (
+						T_SCommunication_SUpdate_t1(id__,
+								    const_SCommunication_max,
+								    const_SCommunication_timeout)
+						[]
+						internal__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SUpdate_t1}) -> exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_SInit})!SID_SCommunication_SUpdate_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_SInit -> SKIP);
+								State_SCommunication_SUpdate_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateLoc__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SUpdate_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_SInit})!SID_SCommunication_SUpdate_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_SInit -> SKIP);
+								State_SCommunication_SUpdate_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] get__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SUpdate_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_SInit})!SID_SCommunication_SUpdate_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_SInit -> SKIP);
+								State_SCommunication_SUpdate_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SUpdate_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_SInit})!SID_SCommunication_SUpdate_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_SInit -> SKIP);
+								State_SCommunication_SUpdate_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect_ack__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SUpdate_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_SInit})!SID_SCommunication_SUpdate_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_SInit -> SKIP);
+								State_SCommunication_SUpdate_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SUpdate_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_SInit})!SID_SCommunication_SUpdate_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_SInit -> SKIP);
+								State_SCommunication_SUpdate_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinates__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SUpdate_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_SInit})!SID_SCommunication_SUpdate_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_SInit -> SKIP);
+								State_SCommunication_SUpdate_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SUpdate_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_SInit})!SID_SCommunication_SUpdate_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_SInit -> SKIP);
+								State_SCommunication_SUpdate_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] update__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SUpdate_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_SInit})!SID_SCommunication_SUpdate_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_SInit -> SKIP);
+								State_SCommunication_SUpdate_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SUpdate_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_SInit})!SID_SCommunication_SUpdate_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_SInit -> SKIP);
+								State_SCommunication_SUpdate_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SUpdate_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_SInit})!SID_SCommunication_SUpdate_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_SInit -> SKIP);
+								State_SCommunication_SUpdate_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] finished__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SUpdate_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_SInit})!SID_SCommunication_SUpdate_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_SInit -> SKIP);
+								State_SCommunication_SUpdate_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] communicationError__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SCommunication_SUpdate_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_SInit})!SID_SCommunication_SUpdate_SInit -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_SInit -> SKIP);
+								State_SCommunication_SUpdate_SInit(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+					))
+			within
+				enter?x____:diff(SIDS,{SID_SCommunication_SUpdate_SInit})!SID_SCommunication_SUpdate_SInit -> (State_SCommunication_SUpdate_SInit_execute(id__,x____))
+			
+			CS_SCommunication_SUpdate_f0_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SCommunication_SUpdate_SInit,SID_SCommunication_SUpdate_f0},
+				y____ <- {SID_SCommunication_SUpdate_f0}
+			|}
+			
+			
+			SCommunication_SUpdate_f0_triggers = {|
+			|}
+			
+			State_SCommunication_SUpdate_f0(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = let
+				State_SCommunication_SUpdate_f0_execute(id__,o____) = SKIP; 
+					entered!o____!SID_SCommunication_SUpdate_f0 ->
+					(SKIP; STOP /\ (
+						internal__?x____:diff(ITIDS,{NULLTRANSITION__}) -> exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_f0})!SID_SCommunication_SUpdate_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_f0 -> SKIP);
+								State_SCommunication_SUpdate_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateLoc__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_f0})!SID_SCommunication_SUpdate_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_f0 -> SKIP);
+								State_SCommunication_SUpdate_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] get__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_f0})!SID_SCommunication_SUpdate_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_f0 -> SKIP);
+								State_SCommunication_SUpdate_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect__?x____:diff(ITIDS,{NULLTRANSITION__})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_f0})!SID_SCommunication_SUpdate_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_f0 -> SKIP);
+								State_SCommunication_SUpdate_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] connect_ack__?x____:diff(ITIDS,{NULLTRANSITION__})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_f0})!SID_SCommunication_SUpdate_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_f0 -> SKIP);
+								State_SCommunication_SUpdate_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesReq__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_f0})!SID_SCommunication_SUpdate_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_f0 -> SKIP);
+								State_SCommunication_SUpdate_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinates__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_f0})!SID_SCommunication_SUpdate_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_f0 -> SKIP);
+								State_SCommunication_SUpdate_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] coordinatesFiware__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_f0})!SID_SCommunication_SUpdate_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_f0 -> SKIP);
+								State_SCommunication_SUpdate_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] update__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_f0})!SID_SCommunication_SUpdate_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_f0 -> SKIP);
+								State_SCommunication_SUpdate_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateReq__?x____:diff(ITIDS,{NULLTRANSITION__})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_f0})!SID_SCommunication_SUpdate_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_f0 -> SKIP);
+								State_SCommunication_SUpdate_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] updateFiware__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_f0})!SID_SCommunication_SUpdate_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_f0 -> SKIP);
+								State_SCommunication_SUpdate_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] finished__?x____:diff(ITIDS,{NULLTRANSITION__})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_f0})!SID_SCommunication_SUpdate_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_f0 -> SKIP);
+								State_SCommunication_SUpdate_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+						[] communicationError__?x____:diff(ITIDS,{NULLTRANSITION__})?d____ ->	exit?y____:diff(SIDS,{SID_SCommunication_SUpdate_f0})!SID_SCommunication_SUpdate_f0 -> (
+								SKIP;
+								exited!y____!SID_SCommunication_SUpdate_f0 -> SKIP);
+								State_SCommunication_SUpdate_f0(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+					))
+			within
+				enter?x____:diff(SIDS,{SID_SCommunication_SUpdate_f0})!SID_SCommunication_SUpdate_f0 -> (State_SCommunication_SUpdate_f0_execute(id__,x____))
+			
+			CS_SCommunication_f0_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SCommunication_SInit,SID_SCommunication_SConnected,SID_SCommunication_SGetNeighs,SID_SCommunication_SUpdate,SID_SCommunication_f0,SID_SCommunication_f1},
+				y____ <- {SID_SCommunication_f0}
+			|}
+			
+			
+			SCommunication_f0_triggers = {|
+			|}
+			
+			State_SCommunication_f0(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = let
+				State_SCommunication_f0_execute(id__,o____) = SKIP; 
+					entered!o____!SID_SCommunication_f0 ->
+					terminate -> SKIP
+			within
+				enter?x____:diff(SIDS,{SID_SCommunication_f0})!SID_SCommunication_f0 -> (State_SCommunication_f0_execute(id__,x____))
+			
+			CS_SCommunication_f1_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SCommunication_SInit,SID_SCommunication_SConnected,SID_SCommunication_SGetNeighs,SID_SCommunication_SUpdate,SID_SCommunication_f0,SID_SCommunication_f1},
+				y____ <- {SID_SCommunication_f1}
+			|}
+			
+			
+			SCommunication_f1_triggers = {|
+			|}
+			
+			State_SCommunication_f1(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = let
+				State_SCommunication_f1_execute(id__,o____) = SKIP; 
+					entered!o____!SID_SCommunication_f1 ->
+					terminate -> SKIP
+			within
+				enter?x____:diff(SIDS,{SID_SCommunication_f1})!SID_SCommunication_f1 -> (State_SCommunication_f1_execute(id__,x____))
+			
+			
+			I_SCommunication_i0(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = let
+				T_SCommunication_t0(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout) = internal__!TID_SCommunication_t0 -> enter!SID_SCommunication!SID_SCommunication_SInit -> entered!SID_SCommunication!SID_SCommunication_SInit ->
+				SKIP
+			within
+				T_SCommunication_t0(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+			
+			I_SCommunication_SGetNeighs_i0(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = let
+				T_SCommunication_SGetNeighs_t0(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout) = internal__!TID_SCommunication_SGetNeighs_t0 -> enter!SID_SCommunication_SGetNeighs!SID_SCommunication_SGetNeighs_SInit -> entered!SID_SCommunication_SGetNeighs!SID_SCommunication_SGetNeighs_SInit ->
+				SKIP
+			within
+				T_SCommunication_SGetNeighs_t0(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+			
+			I_SCommunication_SUpdate_i0(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = let
+				T_SCommunication_SUpdate_t0(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout) = internal__!TID_SCommunication_SUpdate_t0 -> enter!SID_SCommunication_SUpdate!SID_SCommunication_SUpdate_SInit -> entered!SID_SCommunication_SUpdate!SID_SCommunication_SUpdate_SInit ->
+				SKIP
+			within
+				T_SCommunication_SUpdate_t0(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+			
+			
+			State_SCommunication_SInit_R(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = 
+				State_SCommunication_SInit(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+					[|diff(int_int,SCommunication_SInit_triggers)|]
+				SKIP
+					 		
+			State_SCommunication_SConnected_R(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = 
+				State_SCommunication_SConnected(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+					[|diff(int_int,SCommunication_SConnected_triggers)|]
+				SKIP
+					 		
+			State_SCommunication_SGetNeighs_R(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = 
+				State_SCommunication_SGetNeighs(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+					[|diff(int_int,SCommunication_SGetNeighs_triggers)|]
+				SKIP
+					 		
+			State_SCommunication_SUpdate_R(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = 
+				State_SCommunication_SUpdate(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+					[|diff(int_int,SCommunication_SUpdate_triggers)|]
+				SKIP
+					 		
+			State_SCommunication_f0_R(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = 
+				State_SCommunication_f0(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+					[|diff(int_int,SCommunication_f0_triggers)|]
+				SKIP
+					 		
+			State_SCommunication_f1_R(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = 
+				State_SCommunication_f1(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+					[|diff(int_int,SCommunication_f1_triggers)|]
+				SKIP
+					 		
+				
+			STM(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = (
+				I_SCommunication_i0(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)
+					[|
+						{|enter.x____.y____, entered.x____.y____, exit.x____.y____, exited.x____.y____ |
+							x____ <- diff(SIDS,{SID_SCommunication_SInit,SID_SCommunication_SConnected,SID_SCommunication_SGetNeighs,SID_SCommunication_SUpdate,SID_SCommunication_f0,SID_SCommunication_f1}),
+							y____ <- {SID_SCommunication_SInit,SID_SCommunication_SConnected,SID_SCommunication_SGetNeighs,SID_SCommunication_SUpdate,SID_SCommunication_f0,SID_SCommunication_f1}
+					|}|]
+				(
+					State_SCommunication_SInit_R(id__,
+							    const_SCommunication_max,
+							    const_SCommunication_timeout)
+						[|inter(CS_SCommunication_SInit_sync,union(union(union(union(CS_SCommunication_SConnected_sync,CS_SCommunication_SGetNeighs_sync),CS_SCommunication_SUpdate_sync),CS_SCommunication_f0_sync),CS_SCommunication_f1_sync))|]
+					(
+						State_SCommunication_SConnected_R(id__,
+								    const_SCommunication_max,
+								    const_SCommunication_timeout)
+							[|inter(CS_SCommunication_SConnected_sync,union(union(union(CS_SCommunication_SGetNeighs_sync,CS_SCommunication_SUpdate_sync),CS_SCommunication_f0_sync),CS_SCommunication_f1_sync))|]
+						(
+							State_SCommunication_SGetNeighs_R(id__,
+									    const_SCommunication_max,
+									    const_SCommunication_timeout)
+								[|inter(CS_SCommunication_SGetNeighs_sync,union(union(CS_SCommunication_SUpdate_sync,CS_SCommunication_f0_sync),CS_SCommunication_f1_sync))|]
+							(
+								State_SCommunication_SUpdate_R(id__,
+										    const_SCommunication_max,
+										    const_SCommunication_timeout)
+									[|inter(CS_SCommunication_SUpdate_sync,union(CS_SCommunication_f0_sync,CS_SCommunication_f1_sync))|]
+								(
+									State_SCommunication_f0_R(id__,
+											    const_SCommunication_max,
+											    const_SCommunication_timeout)
+										[|inter(CS_SCommunication_f0_sync,CS_SCommunication_f1_sync)|]
+									State_SCommunication_f1_R(id__,
+											    const_SCommunication_max,
+											    const_SCommunication_timeout)
+								)
+							)
+						)
+					)
+				)
+			)
+			
+			-- optimized memory process
+			channel getV_neighs: {(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+			channel getV_location: {(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel getV_updated: core_boolean
+			channel getV_got: core_boolean
+			
+			-- individual memory processes
+			Memory_neighs(neighs) = (
+				get_neighs!neighs -> Memory_neighs(neighs)
+				[]
+				getV_neighs!neighs -> Memory_neighs(neighs)
+				[]
+				set_neighs?x__ -> Memory_neighs(x__)
+				[]
+				coordinatesFiware__!TID_SCommunication_SGetNeighs_t1.in?neighs -> Memory_neighs(neighs)
+			)
+			Memory_location(location) = (
+				get_location!location -> Memory_location(location)
+				[]
+				getV_location!location -> Memory_location(location)
+				[]
+				set_location?x__ -> Memory_location(x__)
+				[]
+				get__!TID_SCommunication_t2.in?location -> Memory_location(location)
+				[]
+				update__!TID_SCommunication_t7.in?location -> Memory_location(location)
+			)
+			Memory_updated(updated) = (
+				get_updated!updated -> Memory_updated(updated)
+				[]
+				getV_updated!updated -> Memory_updated(updated)
+				[]
+				set_updated?x__ -> Memory_updated(x__)
+			)
+			Memory_got(got) = (
+				get_got!got -> Memory_got(got)
+				[]
+				getV_got!got -> Memory_got(got)
+				[]
+				set_got?x__ -> Memory_got(x__)
+			)
+			
+			-- processes that read variables and offer transitions
+			MemoryTransitions(id__, neighs, location, updated, got) = 		
+			(internal__!TID_SCommunication_SGetNeighs_t0 -> SKIP
+			[]
+			coordinatesFiware__!TID_SCommunication_SGetNeighs_t1.in?neighs -> SKIP
+			[]
+			internal__!TID_SCommunication_SUpdate_t0 -> SKIP
+			[]
+			internal__!TID_SCommunication_SUpdate_t1 -> SKIP
+			[]
+			internal__!TID_SCommunication_t0 -> SKIP
+			[]
+			connect__!TID_SCommunication_t1.in -> SKIP
+			[]
+			get__!TID_SCommunication_t2.in?location -> SKIP
+			[]
+			finished__!TID_SCommunication_t6.in -> SKIP
+			[]
+			update__!TID_SCommunication_t7.in?location -> SKIP
+			[]
+			(got)&(internal__!TID_SCommunication_t8 -> SKIP)
+			[]
+			(updated)&(internal__!TID_SCommunication_t3 -> SKIP)
+			[]
+			(true)&(internal__!TID_SCommunication_t4 -> SKIP)
+			[]
+			(((not (got)) and (const_SCommunication_max==3)))&(internal__!TID_SCommunication_t5 -> SKIP)
+			[]
+			(((not (updated)) and (const_SCommunication_max==3)))&(internal__!TID_SCommunication_t9 -> SKIP)
+			[]
+			(true)&(internal__!TID_SCommunication_t10 -> SKIP)[]
+			set_neighs?x__ -> SKIP[]
+			set_location?x__ -> SKIP[]
+			set_updated?x__ -> SKIP[]
+			set_got?x__ -> SKIP)
+			
+			MemoryTransitions_SCommunication(id__, const_SCommunication_max, const_SCommunication_timeout) = (getV_neighs?neighs ->
+			getV_location?location ->
+			getV_updated?updated ->
+			getV_got?got ->
+			MemoryTransitions(id__, neighs, location, updated, got)			
+			); MemoryTransitions_SCommunication(id__, const_SCommunication_max, const_SCommunication_timeout)
+					
+			
+			-- synchronisation, hiding and process sets 
+			MemoryVariablesProcesses_SCommunication = Union(
+				{
+					{
+						(Memory_neighs((St_free,St_free,St_free,St_free)),{|get_neighs,getV_neighs,set_neighs,coordinatesFiware__.TID_SCommunication_SGetNeighs_t1|}),
+						(Memory_location((0,0)),{|set_location,get__.TID_SCommunication_t2,update__.TID_SCommunication_t7,getV_location,get_location|}),
+						(Memory_updated(false),{|set_updated,getV_updated,get_updated|}),
+						(Memory_got(false),{|getV_got,get_got,set_got|})
+					}
+				}
+			)
+			
+			MemoryVariablesSyncSet = Union({
+				{|
+					set_updated,
+					set_location,
+					getV_updated,
+					get__.TID_SCommunication_t2,
+					getV_got,
+					getV_neighs,
+					set_neighs,
+					coordinatesFiware__.TID_SCommunication_SGetNeighs_t1,
+					update__.TID_SCommunication_t7,
+					set_got,
+					getV_location
+				|}	
+			})
+			
+			MemoryVariablesHideSet = Union({
+				{|
+					getV_updated,
+					getV_got,
+					getV_neighs,
+					getV_location
+				|}
+			})
+			
+			-- combined individual memory processes
+			MemoryVariables = ||| (P, alpha) : MemoryVariablesProcesses_SCommunication @ P
+			
+			-- complete memory process	
+			MemoryN(id__, const_SCommunication_max, const_SCommunication_timeout) = sbisim(diamond((sbisim(diamond(MemoryVariables)) [| MemoryVariablesSyncSet |] sbisim(diamond(MemoryTransitions_SCommunication(id__, const_SCommunication_max, const_SCommunication_timeout)))) \ MemoryVariablesHideSet))		
+			
+			-- main process
+			
+			MachineMemorySyncSet = Union({
+				union(
+					union(
+						{|get_neighs,set_neighs,
+						get_location,set_location,
+						get_updated,set_updated,
+						get_got,set_got|},
+						{||}
+					)
+						
+					,
+					{|internal__.TID_SCommunication_SGetNeighs_t0,
+					coordinatesFiware__.TID_SCommunication_SGetNeighs_t1,
+					internal__.TID_SCommunication_SUpdate_t0,
+					internal__.TID_SCommunication_SUpdate_t1,
+					internal__.TID_SCommunication_t0,
+					connect__.TID_SCommunication_t1,
+					get__.TID_SCommunication_t2,
+					finished__.TID_SCommunication_t6,
+					update__.TID_SCommunication_t7,
+					internal__.TID_SCommunication_t8,
+					internal__.TID_SCommunication_t3,
+					internal__.TID_SCommunication_t4,
+					internal__.TID_SCommunication_t5,
+					internal__.TID_SCommunication_t9,
+					internal__.TID_SCommunication_t10|}
+				)
+			})
+			
+			MachineMemoryHidingSet = Union({
+				union(
+					{|get_neighs,set_neighs,
+					get_location,set_location,
+					get_updated,set_updated,
+					get_got,set_got|},
+					{||}
+				)
+			})
+			
+			MachineInternalEvents = {|
+				internal__
+			|}
+			
+			AUX(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = (
+				(
+					STM(id__,
+							    const_SCommunication_max,
+							    const_SCommunication_timeout)
+						[|MachineMemorySyncSet|]
+					sbisim(diamond(MemoryN(id__, const_SCommunication_max, const_SCommunication_timeout)))
+				)[[
+					updateLoc__.x____ <- updateLoc,
+					get__.x____ <- get,
+					connect__.x____ <- connect,
+					connect_ack__.x____ <- connect_ack,
+					coordinatesReq__.x____ <- coordinatesReq,
+					coordinates__.x____ <- coordinates,
+					coordinatesFiware__.x____ <- coordinatesFiware,
+					update__.x____ <- update,
+					updateReq__.x____ <- updateReq,
+					updateFiware__.x____ <- updateFiware,
+					finished__.x____ <- finished,
+					communicationError__.x____ <- communicationError
+					| x____ <- TIDS
+				]]
+				\MachineMemoryHidingSet
+			)
+			[|{|terminate|}|>SKIP\MachineInternalEvents		
+		
+			-- definition of the behaviour of state machines (default, optimised, visible, visible and optimised)
+			transparent diamond
+			transparent sbisim
+			transparent chase
+					
+			FVS__(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = AUX(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout)
+			D__(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = AUX(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) \ internal_events
+			O__(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = sbisim(diamond(D__(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout)))
+			VS__(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = ShowV(FVS__(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout))
+			VS_O__(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = sbisim(diamond(VS__(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout)))
+			HEXT__(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) = O__(id__,
+					    const_SCommunication_max,
+					    const_SCommunication_timeout) [|shared_variable_events|] SKIP	
+		endmodule
+					
+		-- declaring controller events
+		channel updateLoc: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+		channel get: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+		channel connect: InOut
+		channel connect_ack: InOut
+		channel coordinatesReq: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+		channel coordinates: InOut.{(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+		channel coordinatesFiware: InOut.{(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+		channel update: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+		channel updateReq: InOut
+		channel updateFiware: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+		channel finished: InOut
+						
+
+	
+		channel terminate
+	
+		-- declaring controller memory
+		Memory(id__) = SKIP
+		-- declaring controller termination channel
+
+	
+		D__(id__,
+				    const_Communication_stm_ref0_max,
+				    const_Communication_stm_ref0_timeout) = (
+			(
+				let
+					const_SCommunication_max = 3
+					const_SCommunication_timeout = const_Communication_stm_ref0_timeout
+				within 
+				stm_ref0::D__(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)[[
+					stm_ref0::terminate <- terminate,
+					stm_ref0::updateLoc <- updateLoc,
+					stm_ref0::get <- get,
+					stm_ref0::connect <- connect,
+					stm_ref0::connect_ack <- connect_ack,
+					stm_ref0::coordinatesReq <- coordinatesReq,
+					stm_ref0::coordinatesFiware <- coordinatesFiware,
+					stm_ref0::coordinates <- coordinates,
+					stm_ref0::updateFiware <- updateFiware,
+					stm_ref0::updateReq <- updateReq,
+					stm_ref0::update <- update,
+					stm_ref0::finished <- finished
+				]]
+				\ {|
+					stm_ref0::communicationError
+				|}
+			)
+				[|
+					union(
+						{|
+						|},
+						{|
+						|}
+					)
+				|]
+			Memory(id__)
+		)
+		\ union(
+			{|
+			|},
+			{|
+			|}
+		)
+		[|{|terminate|}|>SKIP
+					
+		-- VS version
+		VS__(id__,
+				    const_Communication_stm_ref0_max,
+				    const_Communication_stm_ref0_timeout) = (
+			(
+				let
+					const_SCommunication_max = 3
+					const_SCommunication_timeout = const_Communication_stm_ref0_timeout
+				within 
+				stm_ref0::VS__(id__,
+						    const_SCommunication_max,
+						    const_SCommunication_timeout)[[
+					stm_ref0::terminate <- terminate,
+					stm_ref0::updateLoc <- updateLoc,
+					stm_ref0::get <- get,
+					stm_ref0::connect <- connect,
+					stm_ref0::connect_ack <- connect_ack,
+					stm_ref0::coordinatesReq <- coordinatesReq,
+					stm_ref0::coordinatesFiware <- coordinatesFiware,
+					stm_ref0::coordinates <- coordinates,
+					stm_ref0::updateFiware <- updateFiware,
+					stm_ref0::updateReq <- updateReq,
+					stm_ref0::update <- update,
+					stm_ref0::finished <- finished
+				]]
+				\ {|
+					stm_ref0::communicationError
+				|}
+			)
+				[|
+					union(
+						{|
+						|},
+						{|
+						|}
+					)
+				|]
+			Memory(id__)
+		)
+		\ union(
+			{|
+			|},
+			{|
+			|}
+		)
+		[|{|terminate|}|>SKIP			
+
+					
+		-- O version (optimised) THESE TWO PROCESSES SHOULD BE KEPT IN SYNC WITH THE ABOVE TWO
+		O__(id__,
+				    const_Communication_stm_ref0_max,
+				    const_Communication_stm_ref0_timeout) = sbisim(
+			diamond(
+				(
+					(
+						let
+							const_SCommunication_max = 3
+							const_SCommunication_timeout = const_Communication_stm_ref0_timeout
+						within 
+						stm_ref0::O__(id__,
+								    const_SCommunication_max,
+								    const_SCommunication_timeout)[[
+							stm_ref0::terminate <- terminate,
+							stm_ref0::updateLoc <- updateLoc,
+							stm_ref0::get <- get,
+							stm_ref0::connect <- connect,
+							stm_ref0::connect_ack <- connect_ack,
+							stm_ref0::coordinatesReq <- coordinatesReq,
+							stm_ref0::coordinatesFiware <- coordinatesFiware,
+							stm_ref0::coordinates <- coordinates,
+							stm_ref0::updateFiware <- updateFiware,
+							stm_ref0::updateReq <- updateReq,
+							stm_ref0::update <- update,
+							stm_ref0::finished <- finished
+						]]
+						\ {|
+							stm_ref0::communicationError
+						|}
+					)
+						[|
+							union(
+								{|
+								|},
+								{|
+								|}
+							)
+						|]
+					Memory(id__)
+				)
+				\ union(
+					{|
+					|},
+					{|
+					|}
+				)
+				[|{|terminate|}|>SKIP
+			)
+		)
+					
+		-- VS_O version
+		VS_O__(id__,
+				    const_Communication_stm_ref0_max,
+				    const_Communication_stm_ref0_timeout) = sbisim(
+			diamond(
+				(
+					(
+						let
+							const_SCommunication_max = 3
+							const_SCommunication_timeout = const_Communication_stm_ref0_timeout
+						within 
+						stm_ref0::VS_O__(id__,
+								    const_SCommunication_max,
+								    const_SCommunication_timeout)[[
+							stm_ref0::terminate <- terminate,
+							stm_ref0::updateLoc <- updateLoc,
+							stm_ref0::get <- get,
+							stm_ref0::connect <- connect,
+							stm_ref0::connect_ack <- connect_ack,
+							stm_ref0::coordinatesReq <- coordinatesReq,
+							stm_ref0::coordinatesFiware <- coordinatesFiware,
+							stm_ref0::coordinates <- coordinates,
+							stm_ref0::updateFiware <- updateFiware,
+							stm_ref0::updateReq <- updateReq,
+							stm_ref0::update <- update,
+							stm_ref0::finished <- finished
+						]]
+						\ {|
+							stm_ref0::communicationError
+						|}
+					)
+						[|
+							union(
+								{|
+								|},
+								{|
+								|}
+							)
+						|]
+					Memory(id__)
+				)
+				\ union(
+					{|
+					|},
+					{|
+					|}
+				)
+				[|{|terminate|}|>SKIP
+			)
+		)
+		
+		HEXT(id__,
+				    const_Communication_stm_ref0_max,
+				    const_Communication_stm_ref0_timeout) = O__(id__,
+				    const_Communication_stm_ref0_max,
+				    const_Communication_stm_ref0_timeout) [|shared_variable_events|] SKIP	
+	endmodule

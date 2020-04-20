@@ -1,0 +1,15 @@
+-- data definitions used by platform:/resource/Snail/main.rct
+datatype St = St_free | St_visited | St_obstacle | St_drone | St_snail
+St_is(St_free,St_free) = true
+St_is(_,St_free) = false
+St_is(St_visited,St_visited) = true
+St_is(_,St_visited) = false
+St_is(St_obstacle,St_obstacle) = true
+St_is(_,St_obstacle) = false
+St_is(St_drone,St_drone) = true
+St_is(_,St_drone) = false
+St_is(St_snail,St_snail) = true
+St_is(_,St_snail) = false
+
+
+	

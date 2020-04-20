@@ -1,0 +1,11 @@
+-- Common imports
+transparent wbisim
+
+include "../defs/robochart_defs.csp"
+include "../defs/core_defs.csp"
+include "../defs/timed_definitions.csp"
+include "../instantiations.csp"
+include "../../timed/defs/M.csp"
+include "defs/SimSTM_defs.csp"
+
+include "assertions2.csp"

@@ -1,0 +1,44 @@
+
+
+--include "../defs/file_main.csp"
+include "../defs/file_main_defs.csp"
+
+--include "../defs/SimMod.csp" --erro
+
+--include "assertions2.csp"
+
+--assert SimSTM::TA2(1):[deadlock-free[F]]
+--assert SimSTM::TA3(1):[deadlock-free[F]]
+
+assert SimSTM::D__(0,1):[deadlock-free[F]] 
+
+assert SimSTM::D__(0,1):[livelock-free[FD]] 
+
+--assert M::Mod::D__(0):[deadlock-free[F]] 
+
+--assert Mod::D__(0,1):[deadlock-free[F]]
+
+--assert Mod::D__(0,1):[livelock-free[FD]]
+
+--assert Mod::ctrl_ref0::D__(0,1):[deadlock-free[F]]
+
+--assert Mod::ctrl_ref0::stm_ref0::D__(0,1):[deadlock-free[F]]                                                             
+
+assert SimSTM::D__(0,1) [T= M::Mod::D__(0)                 
+assert M::Mod::D__(0) [T= SimSTM::D__(0,1) 
+
+assert SimSTM::D__(0,1) [F= M::Mod::D__(0)
+assert M::Mod::D__(0) [F= SimSTM::D__(0,1)
+
+assert SimSTM::D__(0,1) [FD= M::Mod::D__(0)
+assert M::Mod::D__(0) [FD= SimSTM::D__(0,1)
+
+--assert SimSTM::D__(0,1) [T= SimMod::D__(0,1)
+--assert SimMod::D__(0,1) [T= SimSTM::D__(0,1) 
+
+--assert SimSTM::D__(0,1) [F= Mod::D__(0,1)
+--assert Mod::D__(0,1) [F= SimSTM::D__(0,1)
+
+--assert SimSTM::D__(0,1) [FD= Mod::D__(0,1)
+--assert Mod::D__(0,1) [FD= SimSTM::D__(0,1)
+

@@ -1,0 +1,127 @@
+include "file_main.csp"
+
+-- generate SNavegation
+P_SNavegation = let
+	id = 0
+within
+	SNavegation::O__(
+		id
+	)
+assert P_SNavegation :[deadlock-free]	
+assert P_SNavegation;RUN({r__}) :[deadlock-free]
+assert P_SNavegation :[deterministic]
+assert P_SNavegation :[divergence-free]
+-- generate SCommunication
+P_SCommunication = let
+	id = 0
+	const_SCommunication_max = 3
+	const_SCommunication_timeout = 0
+within
+	SCommunication::O__(
+		id,
+		const_SCommunication_max,
+		const_SCommunication_timeout
+	)
+assert P_SCommunication :[deadlock-free]	
+assert P_SCommunication;RUN({r__}) :[deadlock-free]
+assert P_SCommunication :[deterministic]
+assert P_SCommunication :[divergence-free]
+
+
+-- generate Communication
+P_Communication = let
+	id__ = 0
+	const_SCommunication_max = 3
+	const_SCommunication_timeout = 0
+within
+	Communication::O__(id__,
+			    const_Communication_stm_ref0_max,
+			    const_Communication_stm_ref0_timeout)
+
+assert P_Communication :[deadlock-free]	
+assert P_Communication;RUN({r__}) :[deadlock-free]
+assert P_Communication :[deterministic]
+assert P_Communication :[divergence-free]
+
+-- generate Communication_stm_ref0
+P_Communication_stm_ref0 = let
+	id = 0
+	const_SCommunication_max = 3
+	const_SCommunication_timeout = 0
+within
+	Communication::stm_ref0::O__(
+		id,
+		const_SCommunication_max,
+		const_SCommunication_timeout
+	)
+assert P_Communication_stm_ref0 :[deadlock-free]	
+assert P_Communication_stm_ref0;RUN({r__}) :[deadlock-free]
+assert P_Communication_stm_ref0 :[deterministic]
+assert P_Communication_stm_ref0 :[divergence-free]
+-- generate Navegation
+P_Navegation = let
+	id__ = 0
+within
+	Navegation::O__(id__)
+
+assert P_Navegation :[deadlock-free]	
+assert P_Navegation;RUN({r__}) :[deadlock-free]
+assert P_Navegation :[deterministic]
+assert P_Navegation :[divergence-free]
+
+-- generate Navegation_stm_ref0
+P_Navegation_stm_ref0 = let
+	id = 0
+within
+	Navegation::stm_ref0::O__(
+		id
+	)
+assert P_Navegation_stm_ref0 :[deadlock-free]	
+assert P_Navegation_stm_ref0;RUN({r__}) :[deadlock-free]
+assert P_Navegation_stm_ref0 :[deterministic]
+assert P_Navegation_stm_ref0 :[divergence-free]
+
+-- generate mod0
+P_mod0 = let
+	id__ = 0
+
+
+	const_SCommunication_max = 3
+	const_SCommunication_timeout = 0
+	
+	
+within
+	mod0::O__(id__,
+			    const_SCommunication_max,
+			    const_SCommunication_timeout)
+assert P_mod0 :[deadlock-free]	
+assert P_mod0;RUN({r__}) :[deadlock-free]
+assert P_mod0 :[deterministic]
+assert P_mod0 :[divergence-free]
+
+-- generate mod0_ctrl_ref0
+P_mod0_ctrl_ref0 = let
+	id__ = 0
+	const_SCommunication_max = 3
+	const_SCommunication_timeout = 0
+within
+	mod0::ctrl_ref0::O__(id__,
+			    const_Communication_stm_ref0_max,
+			    const_Communication_stm_ref0_timeout)
+
+assert P_mod0_ctrl_ref0 :[deadlock-free]	
+assert P_mod0_ctrl_ref0;RUN({r__}) :[deadlock-free]
+assert P_mod0_ctrl_ref0 :[deterministic]
+assert P_mod0_ctrl_ref0 :[divergence-free]
+
+-- generate mod0_ctrl_ref1
+P_mod0_ctrl_ref1 = let
+	id__ = 0
+within
+	mod0::ctrl_ref1::O__(id__)
+
+assert P_mod0_ctrl_ref1 :[deadlock-free]	
+assert P_mod0_ctrl_ref1;RUN({r__}) :[deadlock-free]
+assert P_mod0_ctrl_ref1 :[deterministic]
+assert P_mod0_ctrl_ref1 :[divergence-free]
+

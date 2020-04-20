@@ -1,0 +1,30 @@
+[
+{ "name": "stm0 equals Spec (S0) [failures divergences model]",
+  "type": "equals",
+  "negated": false 
+},
+{ "name": "stm0 is deadlock free (S1) [failures divergences model]",
+  "type": "deadlock-free",
+  "negated": false 
+},
+{ "name": "stm0 is not timelock free (S2) [failures divergences model]",
+  "type": "timelock-free",
+  "negated": true 
+},
+{ "name": "ctrl0 equals CTSpec (C0) [failures divergences model]",
+  "type": "equals",
+  "negated": false 
+},
+{ "name": "ctrl0 is deadlock free (C1) [failures divergences model]",
+  "type": "deadlock-free",
+  "negated": false 
+},
+{ "name": "ctrl0 is not timelock free (C2) [failures divergences model]",
+  "type": "timelock-free",
+  "negated": true 
+},
+{ "name": "stm0 equals SimSTM (RS2) [failures divergences model]",
+  "type": "equals",
+  "negated": false 
+}
+			]

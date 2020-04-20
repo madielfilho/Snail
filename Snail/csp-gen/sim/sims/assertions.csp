@@ -1,0 +1,18 @@
+--include RoboSim --SimMod::D__(0,1)
+include "../defs/file_main.csp"
+
+assert SimRC::TA2(1):[deadlock-free[F]]
+assert SimRC::TA3(1):[deadlock-free[F]]
+
+assert SimRC::D__(0,1):[deadlock-free[F]]   --id__,cycle_SimRC_SimRC
+
+assert SimMod::D__(0,1):[deadlock-free[F]] 
+
+assert SimRC::D__(0,1) [T= SimMod::D__(0,1)
+assert  SimMod::D__(0,1) [T= SimRC::D__(0,1)
+
+assert SimRC::D__(0,1) [F= SimMod::D__(0,1)
+assert  SimMod::D__(0,1) [F= SimRC::D__(0,1)
+
+assert SimRC::D__(0,1) [FD= SimMod::D__(0,1)
+assert  SimMod::D__(0,1) [FD= SimRC::D__(0,1)

@@ -1,0 +1,28 @@
+include "file_main_defs.csp"
+include "Navegation.csp"
+include "core_defs.csp"
+include "robochart_defs.csp"
+include "../instantiations.csp"
+channel r__
+-- generate Navegation
+P_Navegation = let
+	id__ = 0
+within
+	Navegation::O__(id__)
+
+assert P_Navegation :[deadlock-free]	
+assert P_Navegation;RUN({r__}) :[deadlock-free]
+assert P_Navegation :[deterministic]
+assert P_Navegation :[divergence-free]
+
+-- generate Navegation_stm_ref0
+P_Navegation_stm_ref0 = let
+	id = 0
+within
+	Navegation::stm_ref0::O__(
+		id
+	)
+assert P_Navegation_stm_ref0 :[deadlock-free]	
+assert P_Navegation_stm_ref0;RUN({r__}) :[deadlock-free]
+assert P_Navegation_stm_ref0 :[deterministic]
+assert P_Navegation_stm_ref0 :[divergence-free]

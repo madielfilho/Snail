@@ -1,0 +1,57 @@
+module SimRC
+	--include "../../../timed/defs/M.csp"
+	
+	channel terminate
+exports
+
+	InputEvents = {||}
+	OutputEvents = {|M::Mod::a.out,M::Mod::b.out|}
+	ExternalEvents = {|M::Mod::a,M::Mod::b|}
+	
+	datatype RegisterDataOutput = o_a
+		| o_b
+	
+						
+	datatype COutputEvents = COutput_a
+		| COutput_b
+					
+	channel registerWrite 	: RegisterDataOutput
+					
+	A1 =STOP
+							
+	TA1 = A1 /\ terminate -> SKIP 
+	
+	TA2(cycle_SimRC_SimRC) = let
+			
+			read(COutput_a) = M::Mod::a.out -> registerWrite.o_a -> SKIP
+			read(COutput_b) = M::Mod::b.out -> registerWrite.o_b -> SKIP
+	
+			A2(sout) = 
+					([] s : sout @ read(s) ; A2(diff(sout,{s})))
+					 [] terminate -> SKIP
+					 [] (wait(cycle_SimRC_SimRC); A2(COutputEvents))
+		  within
+		  	A2(COutputEvents)
+					
+	TA3(cycle_SimRC_SimRC) = let
+			A3 = 
+				 (RUN(ExternalEvents) /\ (terminate -> SKIP [] wait(cycle_SimRC_SimRC);A3))
+		  within
+		  	A3
+	
+	SimAssumptions(cycle_SimRC_SimRC) =
+		(TA1 [ union(InputEvents,{|terminate|})
+	     	   ||
+	     	   union(OutputEvents,{|registerWrite,terminate,tock|}) ] TA2(cycle_SimRC_SimRC))
+	    [ union(ExternalEvents,{|registerWrite,terminate,tock|})
+	      ||
+	      union(ExternalEvents,{|tock,terminate|}) ] TA3(cycle_SimRC_SimRC)
+					
+	
+	D__(id__,cycle_SimRC_SimRC) =
+		prioritise(
+			(M::Mod::D__(id__)
+		 	[| union(ExternalEvents,{tock,terminate}) |]
+		 	SimAssumptions(cycle_SimRC_SimRC)) \ ExternalEvents,<{},{tock}>)
+
+endmodule

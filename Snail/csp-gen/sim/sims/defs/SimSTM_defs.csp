@@ -1,0 +1,57 @@
+module SimSTM
+	--include "../../../timed/defs/M.csp"
+	
+	channel terminate
+exports
+
+	InputEvents = {||}
+	OutputEvents = {|M::stm0::b.out,M::stm0::a.out|}
+	ExternalEvents = {|M::stm0::b,M::stm0::a|}
+	
+	datatype RegisterDataOutput = o_b
+		| o_a
+	
+						
+	datatype COutputEvents = COutput_b
+		| COutput_a
+					
+	channel registerWrite 	: RegisterDataOutput
+					
+	A1 =STOP
+							
+	TA1 = A1 /\ terminate -> SKIP 
+	
+	TA2(cycle_SimSTM_SimSTM) = let
+			
+			read(COutput_b) = M::stm0::b.out -> registerWrite.o_b -> SKIP
+			read(COutput_a) = M::stm0::a.out -> registerWrite.o_a -> SKIP
+	
+			A2(sout) = 
+					([] s : sout @ read(s) ; A2(diff(sout,{s})))
+					 [] terminate -> SKIP
+					 [] (wait(cycle_SimSTM_SimSTM); A2(COutputEvents))
+		  within
+		  	A2(COutputEvents)
+					
+	TA3(cycle_SimSTM_SimSTM) = let
+			A3 = 
+				 (RUN(ExternalEvents) /\ (terminate -> SKIP [] wait(cycle_SimSTM_SimSTM);A3))
+		  within
+		  	A3
+	
+	SimAssumptions(cycle_SimSTM_SimSTM) =
+		(TA1 [ union(InputEvents,{|terminate|})
+	     	   ||
+	     	   union(OutputEvents,{|registerWrite,terminate,tock|}) ] TA2(cycle_SimSTM_SimSTM))
+	    [ union(ExternalEvents,{|registerWrite,terminate,tock|})
+	      ||
+	      union(ExternalEvents,{|tock,terminate|}) ] TA3(cycle_SimSTM_SimSTM)
+					
+	
+	D__(id__,cycle_SimSTM_SimSTM) =
+		prioritise(
+			(M::Mod::D__(id__)   ---M::stm0::D__(id__)
+		 	[| union(ExternalEvents,{tock,terminate}) |]
+		 	SimAssumptions(cycle_SimSTM_SimSTM)) \ ExternalEvents,<{},{tock}>)
+
+endmodule

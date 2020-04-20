@@ -1,0 +1,1168 @@
+	module Navegation
+		shared_variable_events = {|
+		|}		
+		
+	exports
+		transparent diamond
+		transparent sbisim
+		transparent chase
+
+	
+		-- declaring call and ret events for undefined operations
+	
+	
+	
+		module stm_ref0
+		exports
+			-- flow channels
+			channel internal__ : TIDS
+			channel enteredV, enterV, exitV, exitedV : SIDS
+			channel enter, entered: SIDS.SIDS
+			channel exit,exited: SIDS.SIDS
+			channel terminate
+			
+			-- variable channels
+			channel get_neighs, set_neighs: {(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+			channel get_location, set_location: {(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel get_st1, set_st1: St
+			channel get_st2, set_st2: St
+			channel get_st3, set_st3: St
+			channel get_st4, set_st4: St
+			channel get_line, set_line: core_int
+			channel get_column, set_column: core_int
+					
+			-- shared variable channels
+			
+			-- local variable channels for defined operations that are required by the state machine
+			
+			-- declaring state machine events
+			channel updateLoc__: TIDS.InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel updateLoc: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel get__: TIDS.InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel get: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel connect__: TIDS.InOut
+			channel connect: InOut
+			channel connect_ack__: TIDS.InOut
+			channel connect_ack: InOut
+			channel coordinatesReq__: TIDS.InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel coordinatesReq: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel coordinates__: TIDS.InOut.{(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+			channel coordinates: InOut.{(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+			channel coordinatesFiware__: TIDS.InOut.{(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+			channel coordinatesFiware: InOut.{(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+			channel update__: TIDS.InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel update: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel updateReq__: TIDS.InOut
+			channel updateReq: InOut
+			channel updateFiware__: TIDS.InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel updateFiware: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			
+			-- declaring call and ret events for undefined operations
+			
+			-- Only the undefined operations are declared here.
+			-- If the state machine is in isolation, all required operations will be undefined.
+			-- If it is in the context of a controller, the required operations not provided by the
+			-- controller will be declared here, and the defined operations will be defined in the
+			-- context of the Controller module, and therefore within scope of the state machien module.
+			
+			
+			-- definition of functions used to expose flow channels
+			ShowEvents(P,E) = P[[ entered.x____.y____ <- enteredV.y____ | entered.x____.y____ <- E]]
+							   [[ enter.x____.y____ <- enterV.y____ | enter.x____.y____ <- E]]
+							   [[ exit.x____.y____ <- exitV.y____ | exit.x____.y____ <- E]]
+							   [[ exited.x____.y____ <- exitedV.y____ | exited.x____.y____ <- E ]]
+								 
+			ShowEnteredV(P) = P[[ entered.x____.y____ <- enteredV.y____ | x____ <- SIDS, y____ <- SIDS ]]
+			ShowEnterV(P) = P[[ enter.x____.y____ <- enterV.y____ | x____ <- SIDS, y____ <- SIDS ]]
+			ShowExitV(P) = P[[ exit.x____.y____ <- exitV.y____ | x____ <- SIDS, y____ <- SIDS ]]
+			ShowExitedV(P) = P[[ exited.x____.y____ <- exitedV.y____ | x____ <- SIDS, y____ <- SIDS ]]
+			ShowV(P) = P[[ entered.x____.y____ <- enteredV.y____ | x____ <- SIDS, y____ <- SIDS]]
+						[[ enter.x____.y____ <- enterV.y____ | x____ <- SIDS, y____ <- SIDS ]]
+						[[ exit.x____.y____ <- exitV.y____ | x____ <- SIDS, y____ <- SIDS]]
+						[[ exited.x____.y____ <- exitedV.y____ | x____ <- SIDS, y____ <- SIDS ]]
+			
+			-- declaring identifiers of state and final states
+			datatype SIDS = SID_SNavegation
+			              | SID_SNavegation_SInit
+			              | SID_SNavegation_SGet
+			              | SID_SNavegation_SGet_SInit
+			              | SID_SNavegation_SGet_SMove
+			              | SID_SNavegation_SGet_s1
+			              | SID_SNavegation_SConnected
+			
+			-- declaring identifiers of transitions
+			datatype TIDS = NULLTRANSITION__
+			              | TID_SNavegation_SGet_t0
+			              | TID_SNavegation_SGet_t1
+			              | TID_SNavegation_SGet_t2
+			              | TID_SNavegation_t0
+			              | TID_SNavegation_t1
+			              | TID_SNavegation_t2
+			
+			-- declaring identifiers of transitions that can interupt a state (excludes transitions from junctions)
+			
+			ITIDS = {
+				TID_SNavegation_SGet_t1,	TID_SNavegation_SGet_t2,	TID_SNavegation_t1,	TID_SNavegation_t2
+			}
+			
+			int_int = {|
+				updateLoc__.TID_SNavegation_SGet_t1,
+				get__.TID_SNavegation_SGet_t1,
+				connect__.TID_SNavegation_SGet_t1,
+				connect_ack__.TID_SNavegation_SGet_t1,
+				coordinatesReq__.TID_SNavegation_SGet_t1,
+				coordinates__.TID_SNavegation_SGet_t1,
+				coordinatesFiware__.TID_SNavegation_SGet_t1,
+				update__.TID_SNavegation_SGet_t1,
+				updateReq__.TID_SNavegation_SGet_t1,
+				updateFiware__.TID_SNavegation_SGet_t1,
+				internal__.TID_SNavegation_SGet_t1,
+				updateLoc__.TID_SNavegation_SGet_t2,
+				get__.TID_SNavegation_SGet_t2,
+				connect__.TID_SNavegation_SGet_t2,
+				connect_ack__.TID_SNavegation_SGet_t2,
+				coordinatesReq__.TID_SNavegation_SGet_t2,
+				coordinates__.TID_SNavegation_SGet_t2,
+				coordinatesFiware__.TID_SNavegation_SGet_t2,
+				update__.TID_SNavegation_SGet_t2,
+				updateReq__.TID_SNavegation_SGet_t2,
+				updateFiware__.TID_SNavegation_SGet_t2,
+				internal__.TID_SNavegation_SGet_t2,
+				updateLoc__.TID_SNavegation_t1,
+				get__.TID_SNavegation_t1,
+				connect__.TID_SNavegation_t1,
+				connect_ack__.TID_SNavegation_t1,
+				coordinatesReq__.TID_SNavegation_t1,
+				coordinates__.TID_SNavegation_t1,
+				coordinatesFiware__.TID_SNavegation_t1,
+				update__.TID_SNavegation_t1,
+				updateReq__.TID_SNavegation_t1,
+				updateFiware__.TID_SNavegation_t1,
+				internal__.TID_SNavegation_t1,
+				updateLoc__.TID_SNavegation_t2,
+				get__.TID_SNavegation_t2,
+				connect__.TID_SNavegation_t2,
+				connect_ack__.TID_SNavegation_t2,
+				coordinatesReq__.TID_SNavegation_t2,
+				coordinates__.TID_SNavegation_t2,
+				coordinatesFiware__.TID_SNavegation_t2,
+				update__.TID_SNavegation_t2,
+				updateReq__.TID_SNavegation_t2,
+				updateFiware__.TID_SNavegation_t2,
+				internal__.TID_SNavegation_t2
+			|}
+				
+			
+			internal_events = {|enter,entered,exit,exited|}
+			shared_variable_events = {|
+			|}
+					
+			
+			-- declaring all states
+			CS_SNavegation_SInit_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SNavegation_SInit,SID_SNavegation_SGet,SID_SNavegation_SConnected},
+				y____ <- {SID_SNavegation_SInit}
+			|}
+			
+			
+			SNavegation_SInit_triggers = {|
+				connect_ack__.TID_SNavegation_t1,
+				internal__.TID_SNavegation_t2
+			|}
+			
+			State_SNavegation_SInit(id__) = let
+				T_SNavegation_t1(id__) = connect_ack__!TID_SNavegation_t1.in ->  (exit.SID_SNavegation_SInit.SID_SNavegation_SInit -> SKIP;
+									SKIP;exited.SID_SNavegation_SInit.SID_SNavegation_SInit -> SKIP;
+									enter!SID_SNavegation_SInit!SID_SNavegation_SConnected -> entered!SID_SNavegation_SInit!SID_SNavegation_SConnected ->
+									State_SNavegation_SInit(id__)
+				)
+				State_SNavegation_SInit_execute(id__,o____) = true&(connect.out -> SKIP); 
+					entered!o____!SID_SNavegation_SInit ->
+					(SKIP; STOP /\ (
+						T_SNavegation_t1(id__)
+						[]
+						internal__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t1,TID_SNavegation_t2}) -> exit?y____:diff(SIDS,{SID_SNavegation_SInit})!SID_SNavegation_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SInit -> SKIP);
+								State_SNavegation_SInit(id__)
+						[] updateLoc__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t1,TID_SNavegation_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SInit})!SID_SNavegation_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SInit -> SKIP);
+								State_SNavegation_SInit(id__)
+						[] get__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t1,TID_SNavegation_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SInit})!SID_SNavegation_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SInit -> SKIP);
+								State_SNavegation_SInit(id__)
+						[] connect__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t1,TID_SNavegation_t2})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SInit})!SID_SNavegation_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SInit -> SKIP);
+								State_SNavegation_SInit(id__)
+						[] connect_ack__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t1,TID_SNavegation_t2})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SInit})!SID_SNavegation_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SInit -> SKIP);
+								State_SNavegation_SInit(id__)
+						[] coordinatesReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t1,TID_SNavegation_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SInit})!SID_SNavegation_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SInit -> SKIP);
+								State_SNavegation_SInit(id__)
+						[] coordinates__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t1,TID_SNavegation_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SInit})!SID_SNavegation_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SInit -> SKIP);
+								State_SNavegation_SInit(id__)
+						[] coordinatesFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t1,TID_SNavegation_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SInit})!SID_SNavegation_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SInit -> SKIP);
+								State_SNavegation_SInit(id__)
+						[] update__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t1,TID_SNavegation_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SInit})!SID_SNavegation_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SInit -> SKIP);
+								State_SNavegation_SInit(id__)
+						[] updateReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t1,TID_SNavegation_t2})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SInit})!SID_SNavegation_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SInit -> SKIP);
+								State_SNavegation_SInit(id__)
+						[] updateFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t1,TID_SNavegation_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SInit})!SID_SNavegation_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SInit -> SKIP);
+								State_SNavegation_SInit(id__)
+					))
+			within
+				enter?x____:diff(SIDS,{SID_SNavegation_SInit})!SID_SNavegation_SInit -> (State_SNavegation_SInit_execute(id__,x____))
+			
+			CS_SNavegation_SGet_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SNavegation_SInit,SID_SNavegation_SGet,SID_SNavegation_SConnected},
+				y____ <- {SID_SNavegation_SGet}
+			|}
+			
+			SNavegation_SGet_int_int = {|
+				updateLoc__.TID_SNavegation_SGet_t1,
+				get__.TID_SNavegation_SGet_t1,
+				connect__.TID_SNavegation_SGet_t1,
+				connect_ack__.TID_SNavegation_SGet_t1,
+				coordinatesReq__.TID_SNavegation_SGet_t1,
+				coordinates__.TID_SNavegation_SGet_t1,
+				coordinatesFiware__.TID_SNavegation_SGet_t1,
+				update__.TID_SNavegation_SGet_t1,
+				updateReq__.TID_SNavegation_SGet_t1,
+				updateFiware__.TID_SNavegation_SGet_t1,
+				internal__.TID_SNavegation_SGet_t1,
+				updateLoc__.TID_SNavegation_SGet_t2,
+				get__.TID_SNavegation_SGet_t2,
+				connect__.TID_SNavegation_SGet_t2,
+				connect_ack__.TID_SNavegation_SGet_t2,
+				coordinatesReq__.TID_SNavegation_SGet_t2,
+				coordinates__.TID_SNavegation_SGet_t2,
+				coordinatesFiware__.TID_SNavegation_SGet_t2,
+				update__.TID_SNavegation_SGet_t2,
+				updateReq__.TID_SNavegation_SGet_t2,
+				updateFiware__.TID_SNavegation_SGet_t2,
+				internal__.TID_SNavegation_SGet_t2
+			|}
+				
+			
+			SNavegation_SGet_int_triggers = {|
+				internal__.TID_SNavegation_SGet_t0,
+				coordinates__.TID_SNavegation_SGet_t1,
+				internal__.TID_SNavegation_SGet_t2
+			|}
+			
+			State_SNavegation_SGet_SInit_R(id__) = 
+				State_SNavegation_SGet_SInit(id__)
+			 		[|diff(SNavegation_SGet_int_int,SNavegation_SGet_SInit_triggers)|]
+			 	SKIP
+			 		
+			State_SNavegation_SGet_SMove_R(id__) = 
+				State_SNavegation_SGet_SMove(id__)
+			 		[|diff(SNavegation_SGet_int_int,SNavegation_SGet_SMove_triggers)|]
+			 	SKIP
+			 		
+			State_SNavegation_SGet_s1_R(id__) = 
+				State_SNavegation_SGet_s1(id__)
+			 		[|diff(SNavegation_SGet_int_int,SNavegation_SGet_s1_triggers)|]
+			 	SKIP
+			 		
+			State_SNavegation_SGet(id__) = (
+				State_SNavegation_SGet_aux(id__)
+					[|
+						union(
+							diff(int_int, SNavegation_SGet_int_triggers),
+							{|enter.x____.y____,
+							  entered.x____.y____,
+							  exit.x____.y____,
+							  exited.x____.y____ |
+							  x____ <- diff(SIDS,{SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1}),
+							  y____ <- {SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1}
+						    |}
+						)
+					|]
+				(
+					State_SNavegation_SGet_SInit_R(id__)
+						[|inter(CS_SNavegation_SGet_SInit_sync,union(CS_SNavegation_SGet_SMove_sync,CS_SNavegation_SGet_s1_sync))|]
+					(
+						State_SNavegation_SGet_SMove_R(id__)
+							[|inter(CS_SNavegation_SGet_SMove_sync,CS_SNavegation_SGet_s1_sync)|]
+						State_SNavegation_SGet_s1_R(id__)
+					)
+				)
+			)
+			
+			SNavegation_SGet_triggers = {|
+				internal__.TID_SNavegation_SGet_t2,
+				internal__.TID_SNavegation_SGet_t0,
+				coordinates__.TID_SNavegation_SGet_t1
+			|}
+			
+			State_SNavegation_SGet_aux(id__) = let
+				State_SNavegation_SGet_aux_execute(id__,o____) = SKIP; 
+				I_SNavegation_SGet_i0(id__);
+					entered!o____!SID_SNavegation_SGet ->
+					(SKIP; STOP /\ (
+						internal__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t0,TID_SNavegation_SGet_t1}) -> exit?y____:diff(SIDS,{SID_SNavegation_SGet})!SID_SNavegation_SGet -> (
+								exit!SID_SNavegation_SGet?z____:{SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1} -> exited!SID_SNavegation_SGet!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SNavegation_SGet -> SKIP);
+								State_SNavegation_SGet_aux(id__)
+						[] updateLoc__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t0,TID_SNavegation_SGet_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet})!SID_SNavegation_SGet -> (
+								exit!SID_SNavegation_SGet?z____:{SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1} -> exited!SID_SNavegation_SGet!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SNavegation_SGet -> SKIP);
+								State_SNavegation_SGet_aux(id__)
+						[] get__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t0,TID_SNavegation_SGet_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet})!SID_SNavegation_SGet -> (
+								exit!SID_SNavegation_SGet?z____:{SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1} -> exited!SID_SNavegation_SGet!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SNavegation_SGet -> SKIP);
+								State_SNavegation_SGet_aux(id__)
+						[] connect__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t0,TID_SNavegation_SGet_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet})!SID_SNavegation_SGet -> (
+								exit!SID_SNavegation_SGet?z____:{SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1} -> exited!SID_SNavegation_SGet!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SNavegation_SGet -> SKIP);
+								State_SNavegation_SGet_aux(id__)
+						[] connect_ack__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t0,TID_SNavegation_SGet_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet})!SID_SNavegation_SGet -> (
+								exit!SID_SNavegation_SGet?z____:{SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1} -> exited!SID_SNavegation_SGet!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SNavegation_SGet -> SKIP);
+								State_SNavegation_SGet_aux(id__)
+						[] coordinatesReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t0,TID_SNavegation_SGet_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet})!SID_SNavegation_SGet -> (
+								exit!SID_SNavegation_SGet?z____:{SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1} -> exited!SID_SNavegation_SGet!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SNavegation_SGet -> SKIP);
+								State_SNavegation_SGet_aux(id__)
+						[] coordinates__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t0,TID_SNavegation_SGet_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet})!SID_SNavegation_SGet -> (
+								exit!SID_SNavegation_SGet?z____:{SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1} -> exited!SID_SNavegation_SGet!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SNavegation_SGet -> SKIP);
+								State_SNavegation_SGet_aux(id__)
+						[] coordinatesFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t0,TID_SNavegation_SGet_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet})!SID_SNavegation_SGet -> (
+								exit!SID_SNavegation_SGet?z____:{SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1} -> exited!SID_SNavegation_SGet!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SNavegation_SGet -> SKIP);
+								State_SNavegation_SGet_aux(id__)
+						[] update__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t0,TID_SNavegation_SGet_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet})!SID_SNavegation_SGet -> (
+								exit!SID_SNavegation_SGet?z____:{SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1} -> exited!SID_SNavegation_SGet!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SNavegation_SGet -> SKIP);
+								State_SNavegation_SGet_aux(id__)
+						[] updateReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t0,TID_SNavegation_SGet_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet})!SID_SNavegation_SGet -> (
+								exit!SID_SNavegation_SGet?z____:{SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1} -> exited!SID_SNavegation_SGet!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SNavegation_SGet -> SKIP);
+								State_SNavegation_SGet_aux(id__)
+						[] updateFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t0,TID_SNavegation_SGet_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet})!SID_SNavegation_SGet -> (
+								exit!SID_SNavegation_SGet?z____:{SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1} -> exited!SID_SNavegation_SGet!z____ -> 
+										SKIP;
+								SKIP;
+								exited!y____!SID_SNavegation_SGet -> SKIP);
+								State_SNavegation_SGet_aux(id__)
+					))
+			within
+				enter?x____:diff(SIDS,{SID_SNavegation_SGet})!SID_SNavegation_SGet -> (State_SNavegation_SGet_aux_execute(id__,x____))
+			
+			CS_SNavegation_SGet_SInit_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1},
+				y____ <- {SID_SNavegation_SGet_SInit}
+			|}
+			
+			
+			SNavegation_SGet_SInit_triggers = {|
+				internal__.TID_SNavegation_SGet_t2,
+				coordinates__.TID_SNavegation_SGet_t1
+			|}
+			
+			State_SNavegation_SGet_SInit(id__) = let
+				T_SNavegation_SGet_t1(id__) = coordinates__!TID_SNavegation_SGet_t1.in?neighs -> set_neighs!neighs ->  (exit.SID_SNavegation_SGet_SInit.SID_SNavegation_SGet_SInit -> SKIP;
+									SKIP;exited.SID_SNavegation_SGet_SInit.SID_SNavegation_SGet_SInit -> SKIP;
+									enter!SID_SNavegation_SGet_SInit!SID_SNavegation_SGet_SMove -> entered!SID_SNavegation_SGet_SInit!SID_SNavegation_SGet_SMove ->
+									State_SNavegation_SGet_SInit(id__)
+				)
+				State_SNavegation_SGet_SInit_execute(id__,o____) = SKIP; 
+					entered!o____!SID_SNavegation_SGet_SInit ->
+					(SKIP; STOP /\ (
+						T_SNavegation_SGet_t1(id__)
+						[]
+						internal__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t1}) -> exit?y____:diff(SIDS,{SID_SNavegation_SGet_SInit})!SID_SNavegation_SGet_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SInit -> SKIP);
+								State_SNavegation_SGet_SInit(id__)
+						[] updateLoc__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SInit})!SID_SNavegation_SGet_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SInit -> SKIP);
+								State_SNavegation_SGet_SInit(id__)
+						[] get__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SInit})!SID_SNavegation_SGet_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SInit -> SKIP);
+								State_SNavegation_SGet_SInit(id__)
+						[] connect__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SInit})!SID_SNavegation_SGet_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SInit -> SKIP);
+								State_SNavegation_SGet_SInit(id__)
+						[] connect_ack__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SInit})!SID_SNavegation_SGet_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SInit -> SKIP);
+								State_SNavegation_SGet_SInit(id__)
+						[] coordinatesReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SInit})!SID_SNavegation_SGet_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SInit -> SKIP);
+								State_SNavegation_SGet_SInit(id__)
+						[] coordinates__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SInit})!SID_SNavegation_SGet_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SInit -> SKIP);
+								State_SNavegation_SGet_SInit(id__)
+						[] coordinatesFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SInit})!SID_SNavegation_SGet_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SInit -> SKIP);
+								State_SNavegation_SGet_SInit(id__)
+						[] update__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SInit})!SID_SNavegation_SGet_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SInit -> SKIP);
+								State_SNavegation_SGet_SInit(id__)
+						[] updateReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t1})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SInit})!SID_SNavegation_SGet_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SInit -> SKIP);
+								State_SNavegation_SGet_SInit(id__)
+						[] updateFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2,TID_SNavegation_SGet_t1})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SInit})!SID_SNavegation_SGet_SInit -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SInit -> SKIP);
+								State_SNavegation_SGet_SInit(id__)
+					))
+			within
+				enter?x____:diff(SIDS,{SID_SNavegation_SGet_SInit})!SID_SNavegation_SGet_SInit -> (State_SNavegation_SGet_SInit_execute(id__,x____))
+			
+			CS_SNavegation_SGet_SMove_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1},
+				y____ <- {SID_SNavegation_SGet_SMove}
+			|}
+			
+			
+			SNavegation_SGet_SMove_triggers = {|
+				internal__.TID_SNavegation_SGet_t2
+			|}
+			
+			State_SNavegation_SGet_SMove(id__) = let
+				T_SNavegation_SGet_t2(id__) = internal__!TID_SNavegation_SGet_t2 ->  exit.SID_SNavegation_SGet_SMove.SID_SNavegation_SGet_SMove -> SKIP;
+									SKIP;exited.SID_SNavegation_SGet_SMove.SID_SNavegation_SGet_SMove -> SKIP;
+									enter!SID_SNavegation_SGet_SMove!SID_SNavegation_SGet_s1 -> entered!SID_SNavegation_SGet_SMove!SID_SNavegation_SGet_s1 ->
+									State_SNavegation_SGet_SMove(id__)
+				State_SNavegation_SGet_SMove_execute(id__,o____) = SKIP; 
+					entered!o____!SID_SNavegation_SGet_SMove ->
+					(SKIP; STOP /\ (
+						T_SNavegation_SGet_t2(id__)
+						[]
+						internal__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2}) -> exit?y____:diff(SIDS,{SID_SNavegation_SGet_SMove})!SID_SNavegation_SGet_SMove -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SMove -> SKIP);
+								State_SNavegation_SGet_SMove(id__)
+						[] updateLoc__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SMove})!SID_SNavegation_SGet_SMove -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SMove -> SKIP);
+								State_SNavegation_SGet_SMove(id__)
+						[] get__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SMove})!SID_SNavegation_SGet_SMove -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SMove -> SKIP);
+								State_SNavegation_SGet_SMove(id__)
+						[] connect__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SMove})!SID_SNavegation_SGet_SMove -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SMove -> SKIP);
+								State_SNavegation_SGet_SMove(id__)
+						[] connect_ack__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SMove})!SID_SNavegation_SGet_SMove -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SMove -> SKIP);
+								State_SNavegation_SGet_SMove(id__)
+						[] coordinatesReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SMove})!SID_SNavegation_SGet_SMove -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SMove -> SKIP);
+								State_SNavegation_SGet_SMove(id__)
+						[] coordinates__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SMove})!SID_SNavegation_SGet_SMove -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SMove -> SKIP);
+								State_SNavegation_SGet_SMove(id__)
+						[] coordinatesFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SMove})!SID_SNavegation_SGet_SMove -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SMove -> SKIP);
+								State_SNavegation_SGet_SMove(id__)
+						[] update__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SMove})!SID_SNavegation_SGet_SMove -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SMove -> SKIP);
+								State_SNavegation_SGet_SMove(id__)
+						[] updateReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SMove})!SID_SNavegation_SGet_SMove -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SMove -> SKIP);
+								State_SNavegation_SGet_SMove(id__)
+						[] updateFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_SGet_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_SMove})!SID_SNavegation_SGet_SMove -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_SMove -> SKIP);
+								State_SNavegation_SGet_SMove(id__)
+					))
+			within
+				enter?x____:diff(SIDS,{SID_SNavegation_SGet_SMove})!SID_SNavegation_SGet_SMove -> (State_SNavegation_SGet_SMove_execute(id__,x____))
+			
+			CS_SNavegation_SGet_s1_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SNavegation_SGet_SInit,SID_SNavegation_SGet_SMove,SID_SNavegation_SGet_s1},
+				y____ <- {SID_SNavegation_SGet_s1}
+			|}
+			
+			
+			SNavegation_SGet_s1_triggers = {|
+			|}
+			
+			State_SNavegation_SGet_s1(id__) = let
+				State_SNavegation_SGet_s1_execute(id__,o____) = get_line?line -> get_column?column -> true&(update.out!(Minus(line, 1, core_int),column) -> SKIP); 
+					entered!o____!SID_SNavegation_SGet_s1 ->
+					(SKIP; STOP /\ (
+						internal__?x____:diff(ITIDS,{NULLTRANSITION__}) -> exit?y____:diff(SIDS,{SID_SNavegation_SGet_s1})!SID_SNavegation_SGet_s1 -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_s1 -> SKIP);
+								State_SNavegation_SGet_s1(id__)
+						[] updateLoc__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_s1})!SID_SNavegation_SGet_s1 -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_s1 -> SKIP);
+								State_SNavegation_SGet_s1(id__)
+						[] get__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_s1})!SID_SNavegation_SGet_s1 -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_s1 -> SKIP);
+								State_SNavegation_SGet_s1(id__)
+						[] connect__?x____:diff(ITIDS,{NULLTRANSITION__})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_s1})!SID_SNavegation_SGet_s1 -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_s1 -> SKIP);
+								State_SNavegation_SGet_s1(id__)
+						[] connect_ack__?x____:diff(ITIDS,{NULLTRANSITION__})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_s1})!SID_SNavegation_SGet_s1 -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_s1 -> SKIP);
+								State_SNavegation_SGet_s1(id__)
+						[] coordinatesReq__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_s1})!SID_SNavegation_SGet_s1 -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_s1 -> SKIP);
+								State_SNavegation_SGet_s1(id__)
+						[] coordinates__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_s1})!SID_SNavegation_SGet_s1 -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_s1 -> SKIP);
+								State_SNavegation_SGet_s1(id__)
+						[] coordinatesFiware__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_s1})!SID_SNavegation_SGet_s1 -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_s1 -> SKIP);
+								State_SNavegation_SGet_s1(id__)
+						[] update__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_s1})!SID_SNavegation_SGet_s1 -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_s1 -> SKIP);
+								State_SNavegation_SGet_s1(id__)
+						[] updateReq__?x____:diff(ITIDS,{NULLTRANSITION__})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_s1})!SID_SNavegation_SGet_s1 -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_s1 -> SKIP);
+								State_SNavegation_SGet_s1(id__)
+						[] updateFiware__?x____:diff(ITIDS,{NULLTRANSITION__})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SGet_s1})!SID_SNavegation_SGet_s1 -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SGet_s1 -> SKIP);
+								State_SNavegation_SGet_s1(id__)
+					))
+			within
+				enter?x____:diff(SIDS,{SID_SNavegation_SGet_s1})!SID_SNavegation_SGet_s1 -> (State_SNavegation_SGet_s1_execute(id__,x____))
+			
+			CS_SNavegation_SConnected_sync = {|
+				enter.y____.x____, 
+				entered.y____.x____, 
+				exit.y____.x____, 
+				exited.y____.x____,
+				enter.x____.y____, 
+				entered.x____.y____, 
+				exit.x____.y____, 
+				exited.x____.y____ |
+				x____ <- {SID_SNavegation_SInit,SID_SNavegation_SGet,SID_SNavegation_SConnected},
+				y____ <- {SID_SNavegation_SConnected}
+			|}
+			
+			
+			SNavegation_SConnected_triggers = {|
+				internal__.TID_SNavegation_t2
+			|}
+			
+			State_SNavegation_SConnected(id__) = let
+				T_SNavegation_t2(id__) = internal__!TID_SNavegation_t2 ->  exit.SID_SNavegation_SConnected.SID_SNavegation_SConnected -> SKIP;
+									SKIP;exited.SID_SNavegation_SConnected.SID_SNavegation_SConnected -> SKIP;
+									true&(get.in?location -> set_location!location -> SKIP);enter!SID_SNavegation_SConnected!SID_SNavegation_SGet -> entered!SID_SNavegation_SConnected!SID_SNavegation_SGet ->
+									State_SNavegation_SConnected(id__)
+				State_SNavegation_SConnected_execute(id__,o____) = SKIP; 
+					entered!o____!SID_SNavegation_SConnected ->
+					(SKIP; STOP /\ (
+						T_SNavegation_t2(id__)
+						[]
+						internal__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t2}) -> exit?y____:diff(SIDS,{SID_SNavegation_SConnected})!SID_SNavegation_SConnected -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SConnected -> SKIP);
+								State_SNavegation_SConnected(id__)
+						[] updateLoc__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SConnected})!SID_SNavegation_SConnected -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SConnected -> SKIP);
+								State_SNavegation_SConnected(id__)
+						[] get__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SConnected})!SID_SNavegation_SConnected -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SConnected -> SKIP);
+								State_SNavegation_SConnected(id__)
+						[] connect__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t2})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SConnected})!SID_SNavegation_SConnected -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SConnected -> SKIP);
+								State_SNavegation_SConnected(id__)
+						[] connect_ack__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t2})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SConnected})!SID_SNavegation_SConnected -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SConnected -> SKIP);
+								State_SNavegation_SConnected(id__)
+						[] coordinatesReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SConnected})!SID_SNavegation_SConnected -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SConnected -> SKIP);
+								State_SNavegation_SConnected(id__)
+						[] coordinates__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SConnected})!SID_SNavegation_SConnected -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SConnected -> SKIP);
+								State_SNavegation_SConnected(id__)
+						[] coordinatesFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SConnected})!SID_SNavegation_SConnected -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SConnected -> SKIP);
+								State_SNavegation_SConnected(id__)
+						[] update__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SConnected})!SID_SNavegation_SConnected -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SConnected -> SKIP);
+								State_SNavegation_SConnected(id__)
+						[] updateReq__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t2})?d____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SConnected})!SID_SNavegation_SConnected -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SConnected -> SKIP);
+								State_SNavegation_SConnected(id__)
+						[] updateFiware__?x____:diff(ITIDS,{NULLTRANSITION__,TID_SNavegation_t2})?d____?aux____ ->	exit?y____:diff(SIDS,{SID_SNavegation_SConnected})!SID_SNavegation_SConnected -> (
+								SKIP;
+								exited!y____!SID_SNavegation_SConnected -> SKIP);
+								State_SNavegation_SConnected(id__)
+					))
+			within
+				enter?x____:diff(SIDS,{SID_SNavegation_SConnected})!SID_SNavegation_SConnected -> (State_SNavegation_SConnected_execute(id__,x____))
+			
+			
+			I_SNavegation_i0(id__) = let
+				T_SNavegation_t0(id__) = internal__!TID_SNavegation_t0 -> enter!SID_SNavegation!SID_SNavegation_SInit -> entered!SID_SNavegation!SID_SNavegation_SInit ->
+				SKIP
+			within
+				T_SNavegation_t0(id__)
+			
+			I_SNavegation_SGet_i0(id__) = let
+				T_SNavegation_SGet_t0(id__) = internal__!TID_SNavegation_SGet_t0 -> enter!SID_SNavegation_SGet!SID_SNavegation_SGet_SInit -> entered!SID_SNavegation_SGet!SID_SNavegation_SGet_SInit ->
+				SKIP
+			within
+				T_SNavegation_SGet_t0(id__)
+			
+			
+			State_SNavegation_SInit_R(id__) = 
+				State_SNavegation_SInit(id__)
+					[|diff(int_int,SNavegation_SInit_triggers)|]
+				SKIP
+					 		
+			State_SNavegation_SGet_R(id__) = 
+				State_SNavegation_SGet(id__)
+					[|diff(int_int,SNavegation_SGet_triggers)|]
+				SKIP
+					 		
+			State_SNavegation_SConnected_R(id__) = 
+				State_SNavegation_SConnected(id__)
+					[|diff(int_int,SNavegation_SConnected_triggers)|]
+				SKIP
+					 		
+				
+			STM(id__) = (
+				I_SNavegation_i0(id__)
+					[|
+						{|enter.x____.y____, entered.x____.y____, exit.x____.y____, exited.x____.y____ |
+							x____ <- diff(SIDS,{SID_SNavegation_SInit,SID_SNavegation_SGet,SID_SNavegation_SConnected}),
+							y____ <- {SID_SNavegation_SInit,SID_SNavegation_SGet,SID_SNavegation_SConnected}
+					|}|]
+				(
+					State_SNavegation_SInit_R(id__)
+						[|inter(CS_SNavegation_SInit_sync,union(CS_SNavegation_SGet_sync,CS_SNavegation_SConnected_sync))|]
+					(
+						State_SNavegation_SGet_R(id__)
+							[|inter(CS_SNavegation_SGet_sync,CS_SNavegation_SConnected_sync)|]
+						State_SNavegation_SConnected_R(id__)
+					)
+				)
+			)
+			
+			-- optimized memory process
+			channel getV_neighs: {(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+			channel getV_location: {(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+			channel getV_st1: St
+			channel getV_st2: St
+			channel getV_st3: St
+			channel getV_st4: St
+			channel getV_line: core_int
+			channel getV_column: core_int
+			
+			-- individual memory processes
+			Memory_neighs(neighs) = (
+				get_neighs!neighs -> Memory_neighs(neighs)
+				[]
+				getV_neighs!neighs -> Memory_neighs(neighs)
+				[]
+				set_neighs?x__ -> Memory_neighs(x__)
+				[]
+				coordinates__!TID_SNavegation_SGet_t1.in?neighs -> Memory_neighs(neighs)
+			)
+			Memory_location(location) = (
+				get_location!location -> Memory_location(location)
+				[]
+				getV_location!location -> Memory_location(location)
+				[]
+				set_location?x__ -> Memory_location(x__)
+			)
+			Memory_st1(st1) = (
+				get_st1!st1 -> Memory_st1(st1)
+				[]
+				getV_st1!st1 -> Memory_st1(st1)
+				[]
+				set_st1?x__ -> Memory_st1(x__)
+			)
+			Memory_st2(st2) = (
+				get_st2!st2 -> Memory_st2(st2)
+				[]
+				getV_st2!st2 -> Memory_st2(st2)
+				[]
+				set_st2?x__ -> Memory_st2(x__)
+			)
+			Memory_st3(st3) = (
+				get_st3!st3 -> Memory_st3(st3)
+				[]
+				getV_st3!st3 -> Memory_st3(st3)
+				[]
+				set_st3?x__ -> Memory_st3(x__)
+			)
+			Memory_st4(st4) = (
+				get_st4!st4 -> Memory_st4(st4)
+				[]
+				getV_st4!st4 -> Memory_st4(st4)
+				[]
+				set_st4?x__ -> Memory_st4(x__)
+			)
+			Memory_line(line) = (
+				get_line!line -> Memory_line(line)
+				[]
+				getV_line!line -> Memory_line(line)
+				[]
+				set_line?x__ -> Memory_line(x__)
+			)
+			Memory_column(column) = (
+				get_column!column -> Memory_column(column)
+				[]
+				getV_column!column -> Memory_column(column)
+				[]
+				set_column?x__ -> Memory_column(x__)
+			)
+			
+			-- processes that read variables and offer transitions
+			MemoryTransitions(id__, neighs, location, st1, st2, st3, st4, line, column) = 		
+			(internal__!TID_SNavegation_SGet_t0 -> SKIP
+			[]
+			coordinates__!TID_SNavegation_SGet_t1.in?neighs -> SKIP
+			[]
+			((tuple4_1(neighs)==St_free))&(internal__!TID_SNavegation_SGet_t2 -> SKIP)
+			[]
+			internal__!TID_SNavegation_t0 -> SKIP
+			[]
+			connect_ack__!TID_SNavegation_t1.in -> SKIP
+			[]
+			internal__!TID_SNavegation_t2 -> SKIP[]
+			set_neighs?x__ -> SKIP[]
+			set_location?x__ -> SKIP[]
+			set_st1?x__ -> SKIP[]
+			set_st2?x__ -> SKIP[]
+			set_st3?x__ -> SKIP[]
+			set_st4?x__ -> SKIP[]
+			set_line?x__ -> SKIP[]
+			set_column?x__ -> SKIP)
+			
+			MemoryTransitions_SNavegation(id__) = (getV_neighs?neighs ->
+			getV_location?location ->
+			getV_st1?st1 ->
+			getV_st2?st2 ->
+			getV_st3?st3 ->
+			getV_st4?st4 ->
+			getV_line?line ->
+			getV_column?column ->
+			MemoryTransitions(id__, neighs, location, st1, st2, st3, st4, line, column)			
+			); MemoryTransitions_SNavegation(id__)
+					
+			
+			-- synchronisation, hiding and process sets 
+			MemoryVariablesProcesses_SNavegation = Union(
+				{
+					{
+						(Memory_neighs((St_free,St_free,St_free,St_free)),{|get_neighs,getV_neighs,set_neighs,coordinates__.TID_SNavegation_SGet_t1|}),
+						(Memory_location((0,0)),{|set_location,getV_location,get_location|}),
+						(Memory_st1(St_free),{|set_st1,getV_st1,get_st1|}),
+						(Memory_st2(St_free),{|set_st2,get_st2,getV_st2|}),
+						(Memory_st3(St_free),{|set_st3,get_st3,getV_st3|}),
+						(Memory_st4(St_free),{|get_st4,set_st4,getV_st4|}),
+						(Memory_line(2),{|get_line,getV_line,set_line|}),
+						(Memory_column(2),{|getV_column,set_column,get_column|})
+					}
+				}
+			)
+			
+			MemoryVariablesSyncSet = Union({
+				{|
+					set_st3,
+					set_st2,
+					set_st4,
+					set_st1,
+					getV_column,
+					set_column,
+					set_line,
+					set_location,
+					getV_line,
+					getV_neighs,
+					set_neighs,
+					getV_st1,
+					getV_st3,
+					getV_location,
+					getV_st2,
+					coordinates__.TID_SNavegation_SGet_t1,
+					getV_st4
+				|}	
+			})
+			
+			MemoryVariablesHideSet = Union({
+				{|
+					getV_line,
+					getV_neighs,
+					getV_column,
+					getV_st1,
+					getV_st3,
+					getV_location,
+					getV_st2,
+					getV_st4
+				|}
+			})
+			
+			-- combined individual memory processes
+			MemoryVariables = ||| (P, alpha) : MemoryVariablesProcesses_SNavegation @ P
+			
+			-- complete memory process	
+			MemoryN(id__) = sbisim(diamond((sbisim(diamond(MemoryVariables)) [| MemoryVariablesSyncSet |] sbisim(diamond(MemoryTransitions_SNavegation(id__)))) \ MemoryVariablesHideSet))		
+			
+			-- main process
+			
+			MachineMemorySyncSet = Union({
+				union(
+					union(
+						{|get_neighs,set_neighs,
+						get_location,set_location,
+						get_st1,set_st1,
+						get_st2,set_st2,
+						get_st3,set_st3,
+						get_st4,set_st4,
+						get_line,set_line,
+						get_column,set_column|},
+						{||}
+					)
+						
+					,
+					{|internal__.TID_SNavegation_SGet_t0,
+					coordinates__.TID_SNavegation_SGet_t1,
+					internal__.TID_SNavegation_SGet_t2,
+					internal__.TID_SNavegation_t0,
+					connect_ack__.TID_SNavegation_t1,
+					internal__.TID_SNavegation_t2|}
+				)
+			})
+			
+			MachineMemoryHidingSet = Union({
+				union(
+					{|get_neighs,set_neighs,
+					get_location,set_location,
+					get_st1,set_st1,
+					get_st2,set_st2,
+					get_st3,set_st3,
+					get_st4,set_st4,
+					get_line,set_line,
+					get_column,set_column|},
+					{||}
+				)
+			})
+			
+			MachineInternalEvents = {|
+				internal__
+			|}
+			
+			AUX(id__) = (
+				(
+					STM(id__)
+						[|MachineMemorySyncSet|]
+					sbisim(diamond(MemoryN(id__)))
+				)[[
+					updateLoc__.x____ <- updateLoc,
+					get__.x____ <- get,
+					connect__.x____ <- connect,
+					connect_ack__.x____ <- connect_ack,
+					coordinatesReq__.x____ <- coordinatesReq,
+					coordinates__.x____ <- coordinates,
+					coordinatesFiware__.x____ <- coordinatesFiware,
+					update__.x____ <- update,
+					updateReq__.x____ <- updateReq,
+					updateFiware__.x____ <- updateFiware
+					| x____ <- TIDS
+				]]
+				\MachineMemoryHidingSet
+			)
+			[|{|terminate|}|>SKIP\MachineInternalEvents		
+		
+			-- definition of the behaviour of state machines (default, optimised, visible, visible and optimised)
+			transparent diamond
+			transparent sbisim
+			transparent chase
+					
+			FVS__(id__) = AUX(id__)
+			D__(id__) = AUX(id__) \ internal_events
+			O__(id__) = sbisim(diamond(D__(id__)))
+			VS__(id__) = ShowV(FVS__(id__))
+			VS_O__(id__) = sbisim(diamond(VS__(id__)))
+			HEXT__(id__) = O__(id__) [|shared_variable_events|] SKIP	
+		endmodule
+					
+		-- declaring controller events
+		channel updateLoc: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+		channel get: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+		channel connect: InOut
+		channel connect_ack: InOut
+		channel coordinatesReq: InOut.{(x0__,x1__) | x0__ <- core_int,x1__ <- core_int}
+		channel coordinates: InOut.{(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+		channel coordinatesFiware: InOut.{(x0__,x1__,x2__,x3__) | x0__ <- St,x1__ <- St,x2__ <- St,x3__ <- St}
+						
+
+	
+		channel terminate
+	
+		-- declaring controller memory
+		Memory(id__) = SKIP
+		-- declaring controller termination channel
+
+	
+		D__(id__) = (
+			(
+				stm_ref0::D__(id__)[[
+					stm_ref0::terminate <- terminate,
+					stm_ref0::connect_ack <- connect_ack,
+					stm_ref0::connect <- connect,
+					stm_ref0::updateLoc <- updateLoc
+				]]
+				\ {|
+					stm_ref0::get,
+					stm_ref0::coordinatesReq,
+					stm_ref0::coordinates,
+					stm_ref0::coordinatesFiware,
+					stm_ref0::update,
+					stm_ref0::updateReq,
+					stm_ref0::updateFiware
+				|}
+			)
+				[|
+					union(
+						{|
+						|},
+						{|
+						|}
+					)
+				|]
+			Memory(id__)
+		)
+		\ union(
+			{|
+			|},
+			{|
+			|}
+		)
+		[|{|terminate|}|>SKIP
+					
+		-- VS version
+		VS__(id__) = (
+			(
+				stm_ref0::VS__(id__)[[
+					stm_ref0::terminate <- terminate,
+					stm_ref0::connect_ack <- connect_ack,
+					stm_ref0::connect <- connect,
+					stm_ref0::updateLoc <- updateLoc
+				]]
+				\ {|
+					stm_ref0::get,
+					stm_ref0::coordinatesReq,
+					stm_ref0::coordinates,
+					stm_ref0::coordinatesFiware,
+					stm_ref0::update,
+					stm_ref0::updateReq,
+					stm_ref0::updateFiware
+				|}
+			)
+				[|
+					union(
+						{|
+						|},
+						{|
+						|}
+					)
+				|]
+			Memory(id__)
+		)
+		\ union(
+			{|
+			|},
+			{|
+			|}
+		)
+		[|{|terminate|}|>SKIP			
+
+					
+		-- O version (optimised) THESE TWO PROCESSES SHOULD BE KEPT IN SYNC WITH THE ABOVE TWO
+		O__(id__) = sbisim(
+			diamond(
+				(
+					(
+						stm_ref0::O__(id__)[[
+							stm_ref0::terminate <- terminate,
+							stm_ref0::connect_ack <- connect_ack,
+							stm_ref0::connect <- connect,
+							stm_ref0::updateLoc <- updateLoc
+						]]
+						\ {|
+							stm_ref0::get,
+							stm_ref0::coordinatesReq,
+							stm_ref0::coordinates,
+							stm_ref0::coordinatesFiware,
+							stm_ref0::update,
+							stm_ref0::updateReq,
+							stm_ref0::updateFiware
+						|}
+					)
+						[|
+							union(
+								{|
+								|},
+								{|
+								|}
+							)
+						|]
+					Memory(id__)
+				)
+				\ union(
+					{|
+					|},
+					{|
+					|}
+				)
+				[|{|terminate|}|>SKIP
+			)
+		)
+					
+		-- VS_O version
+		VS_O__(id__) = sbisim(
+			diamond(
+				(
+					(
+						stm_ref0::VS_O__(id__)[[
+							stm_ref0::terminate <- terminate,
+							stm_ref0::connect_ack <- connect_ack,
+							stm_ref0::connect <- connect,
+							stm_ref0::updateLoc <- updateLoc
+						]]
+						\ {|
+							stm_ref0::get,
+							stm_ref0::coordinatesReq,
+							stm_ref0::coordinates,
+							stm_ref0::coordinatesFiware,
+							stm_ref0::update,
+							stm_ref0::updateReq,
+							stm_ref0::updateFiware
+						|}
+					)
+						[|
+							union(
+								{|
+								|},
+								{|
+								|}
+							)
+						|]
+					Memory(id__)
+				)
+				\ union(
+					{|
+					|},
+					{|
+					|}
+				)
+				[|{|terminate|}|>SKIP
+			)
+		)
+		
+		HEXT(id__) = O__(id__) [|shared_variable_events|] SKIP	
+	endmodule

@@ -1,0 +1,286 @@
+interface ConnectionI {
+	event connect
+	event connect_ack
+}
+
+interface CoordinatesI {
+	
+event coordinatesReq  : int * int
+event coordinates : St * St * St * St
+event coordinatesFiware : St * St * St * St
+
+}
+
+interface getStatusI {
+	event updateLoc : int * int
+//	event get : St * St * St * St
+	event get : int * int
+}
+
+enumeration St { 
+	free 
+	visited 
+	obstacle 
+	drone
+    snail 
+} 
+
+interface FinishedI {
+	event finished
+}
+
+interface UpdateI {
+	event update : int * int
+  event updateReq
+event updateFiware : int * int
+}
+
+interface interface6 {
+	event communicationError
+}
+
+
+controller Communication {
+	uses getStatusI
+	uses ConnectionI
+	uses CoordinatesI 
+
+
+
+sref stm_ref0 = SCommunication
+connection Communication on updateLoc to stm_ref0 on updateLoc
+	connection Communication on get to stm_ref0 on get
+	connection Communication on connect to stm_ref0 on connect
+	
+connection stm_ref0 on connect_ack to Communication on connect_ack
+uses UpdateI uses FinishedI connection stm_ref0 on coordinatesReq to Communication on coordinatesReq
+	connection Communication on coordinatesFiware to stm_ref0 on coordinatesFiware
+	connection stm_ref0 on coordinates to Communication on coordinates
+	connection stm_ref0 on updateFiware to Communication on updateFiware
+	connection stm_ref0 on updateReq to Communication on updateReq
+	connection Communication on update to stm_ref0 on update
+	connection Communication on finished to stm_ref0 on finished
+}
+
+
+
+controller Navegation {
+	uses getStatusI
+	uses ConnectionI
+	uses CoordinatesI 
+	sref stm_ref0 = SNavegation
+
+connection Navegation on connect_ack to stm_ref0 on connect_ack
+	connection stm_ref0 on connect to Navegation on connect
+//	connection stm_ref0 on get to Navegation on get
+	connection stm_ref0 on updateLoc to Navegation on updateLoc
+}
+
+//operation connect ( ) {
+//}
+//
+//operation get ( ) {
+//}
+//
+//operation post ( ) {
+//}
+
+stm SNavegation {
+	uses getStatusI
+	uses ConnectionI
+	uses CoordinatesI 
+	var neighs : St * St * St * St, location: int * int
+initial i0
+	state SInit {
+		entry connect
+	}
+	transition t0 {
+		from i0
+		to SInit
+	}
+var st1 : St , st2 : St , st3 : St , st4 : St
+var line:int=2,column:int=2
+
+	state SGet {
+	initial i0
+		state SInit {
+		}
+		state SMove {
+		}
+		transition t0 {
+			from i0
+			to SInit
+		}
+		transition t1 {
+			from SInit
+			to SMove
+		trigger coordinates ? neighs
+		}
+		state s1 {
+			entry update!(|line-1,column|)
+			 //(location[1]=neighs[1])
+		}
+		transition t2 {
+			from SMove
+			to s1
+			trigger
+			condition neighs [ 1 ] == St :: free
+		}
+	}
+	transition t1 {
+		from SInit
+		to SConnected
+		trigger connect_ack
+	}
+state SConnected {
+	}
+	transition t2 {
+		from SConnected
+		to SGet
+		trigger
+		action get?location
+	}
+uses UpdateI }
+
+module mod0 {
+	connection ctrl_ref1 on connect to ctrl_ref0 on connect
+	connection ctrl_ref1 on get to ctrl_ref0 on get
+	connection ctrl_ref1 on updateLoc to ctrl_ref0 on updateLoc
+	cref ctrl_ref0 = Communication
+	cref ctrl_ref1 = Navegation
+	robotic platform rp0 {
+	}
+
+connection ctrl_ref0 on connect_ack to ctrl_ref1 on connect_ack
+//	connection ctrl_ref1 on connect_ack to ctrl_ref0 on connect
+}
+
+stm SCommunication {
+	uses getStatusI
+	uses ConnectionI
+	uses CoordinatesI 
+    uses UpdateI
+    //var n : St,s :St ,e :St ,w :St 
+    var neighs : St * St * St * St, location: int * int //neighborhood
+    
+	initial i0
+	state SInit {
+	}
+    state SConnected {
+	}
+	state SGetNeighs {
+	initial i0
+		state SInit {
+		entry coordinatesReq ! location
+		}
+
+		final f0
+
+		transition t0 {
+			from i0
+			to SInit
+		trigger
+			//action coordinatesReq!location
+		}
+		transition t1 {
+			from SInit
+			to f0
+			trigger coordinatesFiware ? neighs
+			action coordinates ! neighs ; got = true
+		}
+	} 
+	state SUpdate {
+	initial i0
+		state SInit {
+		entry updateReq
+		}
+		final f0
+		transition t0 {
+			from i0
+			to SInit
+			trigger
+			//action updateReq
+		}
+		transition t1 {
+			from SInit
+			to f0
+		trigger
+			action updateFiware ! location ; updated = true
+		}
+	}
+final f0
+uses FinishedI var updated : boolean = false , got : boolean = false
+	transition t0 {
+		from i0
+		to SInit
+	}
+	transition t1 {
+		from SInit
+		to SConnected
+		trigger connect
+		action connect_ack
+	}
+	transition t2 {
+		from SConnected
+		to SGetNeighs
+		trigger get?location
+		action # Clk ; max = 1 ; got = false
+	}
+	transition t6 {
+		from SConnected
+		to f0
+		trigger finished
+	}
+	transition t7 {
+		from SConnected
+		to SUpdate
+		trigger update ? location
+		action # Clk
+	}
+transition t8 {
+		from SGetNeighs
+		to SConnected
+	trigger
+		condition got
+	}
+transition t3 {
+		from SUpdate
+		to SConnected
+		trigger
+		condition updated
+	}
+clock Clk
+uses interface6 const max : int = 3
+	const timeout : int
+
+	final f1
+	transition t4 {
+		from SGetNeighs
+		to SGetNeighs
+		trigger
+		condition not got /\ since ( Clk ) < timeout
+		action max = max + 1
+	}
+	transition t5 {
+		from SGetNeighs
+		to f1
+		trigger
+		condition not got /\ max == 3
+		action communicationError
+	}
+	transition t9 {
+		from SUpdate
+		to f1
+		trigger
+		condition not updated /\ max == 3
+		action communicationError
+	}
+	transition t10 {
+		from SUpdate
+		to SUpdate
+		trigger
+		condition not updated /\ since ( Clk ) < timeout
+		action max = max + 1
+	}
+}
+

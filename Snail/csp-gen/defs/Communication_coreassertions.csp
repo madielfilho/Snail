@@ -1,0 +1,36 @@
+include "file_main_defs.csp"
+include "core_defs.csp"
+include "Communication.csp"
+include "robochart_defs.csp"
+include "../instantiations.csp"
+channel r__
+-- generate Communication
+P_Communication = let
+	id__ = 0
+	const_SCommunication_max = 3
+	const_SCommunication_timeout = 0
+within
+	Communication::O__(id__,
+			    const_Communication_stm_ref0_max,
+			    const_Communication_stm_ref0_timeout)
+
+assert P_Communication :[deadlock-free]	
+assert P_Communication;RUN({r__}) :[deadlock-free]
+assert P_Communication :[deterministic]
+assert P_Communication :[divergence-free]
+
+-- generate Communication_stm_ref0
+P_Communication_stm_ref0 = let
+	id = 0
+	const_SCommunication_max = 3
+	const_SCommunication_timeout = 0
+within
+	Communication::stm_ref0::O__(
+		id,
+		const_SCommunication_max,
+		const_SCommunication_timeout
+	)
+assert P_Communication_stm_ref0 :[deadlock-free]	
+assert P_Communication_stm_ref0;RUN({r__}) :[deadlock-free]
+assert P_Communication_stm_ref0 :[deterministic]
+assert P_Communication_stm_ref0 :[divergence-free]
